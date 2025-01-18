@@ -14,13 +14,13 @@ try {
   console.log(e);
 }
 
-const app = new Hono();
+const app = new Hono().basePath("/api");
 
 app
   .use(cors())
   .use(logger())
   .get("/check-health", (c) => c.text("OK"))
-  .route("/api/categories", categoryRoute)
+  .route("/categories", categoryRoute)
   .onError(errorMiddleware);
 
 // export default app;
@@ -28,6 +28,7 @@ app
 // for vercel use
 const handler = handle(app);
 
+export const runtime = 'edge'
 export const GET = handler;
 export const POST = handler;
 export const PATCH = handler;
