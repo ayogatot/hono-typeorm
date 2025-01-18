@@ -2,6 +2,9 @@
   "name": "hono",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "build": "bun run api/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^22.10.7",
