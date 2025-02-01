@@ -23,6 +23,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE,
   synchronize: process.env.NODE_ENV === "dev",
   logging: process.env.NODE_ENV === "dev",
+  poolSize: 10,
   entities: [
     Category,
     Discount,
