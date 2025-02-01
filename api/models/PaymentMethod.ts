@@ -22,6 +22,6 @@ export class PaymentMethod {
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.paymentMethod)
+  @OneToMany(() => Transaction, (transaction) => transaction.payment_method)
   transactions!: Transaction[];
 }

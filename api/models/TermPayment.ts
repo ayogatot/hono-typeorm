@@ -4,31 +4,23 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
-  UpdateDateColumn,
-  type Relation,
   JoinColumn,
+  type Relation,
+  UpdateDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
-import { ItemStock } from "./ItemStock";
 
-@Entity("transaction_items")
-export class TransactionItem {
+@Entity("term_payment")
+export class TermPayment {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Transaction, (transaction) => transaction.transaction_items)
+  @ManyToOne(() => Transaction, (transaction) => transaction.term_payments)
   @JoinColumn({ name: "transaction_id" })
   transaction!: Relation<Transaction>;
 
-  @ManyToOne(() => ItemStock, (itemStock) => itemStock.transaction_items)
-  @JoinColumn({ name: "item_stock_id" })
-  item_stock!: Relation<ItemStock>;
-
-  @Column({ type: "int" })
-  quantity!: number;
-
   @Column({ type: "double" })
-  total_price!: number;
+  amount!: number;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;

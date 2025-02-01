@@ -24,8 +24,8 @@ export class User {
   @Column({ type: "varchar" })
   password!: string;
 
-  @Column({ type: "varchar" })
-  role!: string;
+  @Column({ type: "enum", enum: ["ADMIN", "CASHIER", "USER"], default: "USER" })
+  role!: "ADMIN" | "CASHIER" | "USER";
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
@@ -33,8 +33,8 @@ export class User {
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
 
-  @OneToMany(() => ItemStock, (itemStock) => itemStock.addedBy)
-  itemStocks!: ItemStock[];
+  @OneToMany(() => ItemStock, (itemStock) => itemStock.added_by)
+  item_stocks!: ItemStock[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.buyer)
   transactions!: Transaction[];

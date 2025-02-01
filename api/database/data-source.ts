@@ -11,7 +11,7 @@ import { Transaction } from "../models/Transaction";
 import { TransactionItem } from "../models/TransactionItem";
 import { User } from "../models/User";
 import { Unit } from "../models/Unit";
-
+import { TermPayment } from "../models/TermPayment";
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -34,5 +34,6 @@ export const AppDataSource = new DataSource({
     TransactionItem,
     Unit,
     User,
+    TermPayment,
   ],
 });

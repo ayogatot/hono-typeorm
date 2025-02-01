@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   type Relation,
+  JoinColumn,
 } from "typeorm";
 import { Category } from "./Category";
 import { Unit } from "./Unit";
@@ -17,12 +18,14 @@ export class Item {
   id!: number;
 
   @ManyToOne(() => Category, (category) => category.items)
+  @JoinColumn({ name: "category_id" })
   category!: Relation<Category>;
 
   @ManyToOne(() => Unit, (unit) => unit.items)
-  unit!: Unit;
+  @JoinColumn({ name: "unit_id" })
+  unit!: Relation<Unit>;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", nullable: true })
   code!: string;
 
   @Column({ type: "varchar" })
@@ -38,5 +41,5 @@ export class Item {
   created_at!: Date;
 
   @OneToMany(() => ItemStock, (itemStock) => itemStock.item)
-  itemStocks!: ItemStock[];
+  item_stocks!: ItemStock[];
 }

@@ -7,6 +7,7 @@ import {
   OneToMany,
   UpdateDateColumn,
   type Relation,
+  JoinColumn,
 } from "typeorm";
 import { Item } from "./Item";
 import { User } from "./User";
@@ -17,11 +18,13 @@ export class ItemStock {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => Item, (item) => item.itemStocks)
+  @ManyToOne(() => Item, (item) => item.item_stocks)
+  @JoinColumn({ name: "item_id" })
   item!: Relation<Item>;
 
-  @ManyToOne(() => User, (user) => user.itemStocks)
-  addedBy!: Relation<User>;
+  @ManyToOne(() => User, (user) => user.item_stocks)
+  @JoinColumn({ name: "added_by_id" })
+  added_by!: Relation<User>;
 
   @Column({ type: "int" })
   quantity!: number;
@@ -40,7 +43,7 @@ export class ItemStock {
 
   @OneToMany(
     () => TransactionItem,
-    (transactionItem) => transactionItem.itemStock
+    (transactionItem) => transactionItem.item_stock
   )
-  transactionItems!: TransactionItem[];
+  transaction_items!: TransactionItem[];
 }
