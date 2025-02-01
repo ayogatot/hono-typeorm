@@ -14,16 +14,15 @@ import { Unit } from "../models/Unit";
 import { TermPayment } from "../models/TermPayment";
 dotenv.config();
 
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: "mysql",
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || "3306", 10),
+  port: parseInt(process.env.DB_PORT || "3306"),
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  synchronize: process.env.NODE_ENV === "dev",
+  synchronize: false,
   logging: process.env.NODE_ENV === "dev",
-  poolSize: 10,
   entities: [
     Category,
     Discount,
@@ -37,4 +36,14 @@ export const AppDataSource = new DataSource({
     User,
     TermPayment,
   ],
+  poolSize: 10,
+  extra: {
+    connectionLimit: 10,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000,
+    waitForConnections: true,
+    connectTimeout: 10000,
+  }
 });
+
+export { AppDataSource };
