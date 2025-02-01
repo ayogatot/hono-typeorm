@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/error-middleware";
 
 import categoryRoute from "./routes/category-route";
 import userRoutes from "./routes/user-routes";
+import unitRoutes from "./routes/unit-route";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -23,6 +24,7 @@ app
   .get("/check-health", (c) => c.text("OK"))
   .route("/categories", categoryRoute)
   .route("/users", userRoutes)
+  .route("/units", unitRoutes)
   .onError(errorMiddleware);
 
 export default app;
