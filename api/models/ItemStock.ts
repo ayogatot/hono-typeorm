@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   type Relation,
   JoinColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Item } from "./Item";
 import { User } from "./User";
@@ -46,4 +47,7 @@ export class ItemStock {
     (transactionItem) => transactionItem.item_stock
   )
   transaction_items!: TransactionItem[];
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 }

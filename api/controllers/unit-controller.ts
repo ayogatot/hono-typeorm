@@ -19,7 +19,7 @@ const unitController = {
     const data = await c.req.json();
     const validation = createUnitValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
@@ -45,7 +45,7 @@ const unitController = {
     const data = await c.req.json();
     const validation = updateUnitValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {

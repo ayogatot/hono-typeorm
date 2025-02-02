@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   OneToMany,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Item } from "./Item";
 
@@ -21,6 +22,9 @@ export class Category {
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 
   @OneToMany(() => Item, (item) => item.category)
   items!: Item[];

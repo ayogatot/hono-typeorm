@@ -7,6 +7,7 @@ import {
   JoinColumn,
   type Relation,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
 
@@ -27,4 +28,7 @@ export class TermPayment {
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 }

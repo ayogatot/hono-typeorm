@@ -10,14 +10,14 @@ const userController = {
     const data = await c.req.json();
     const validation = registerValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
       const user = await userService.register(data);
       return c.json(response.success(user, "User registered successfully", 201));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 
@@ -25,14 +25,14 @@ const userController = {
     const data = await c.req.json();
     const validation = loginValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
       const result = await userService.login(data);
       return c.json(response.success(result, "Login successful", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 401));
+      throw new Error(error.message);
     }
   },
 
@@ -42,7 +42,7 @@ const userController = {
       const profile = await userService.findById(user.id);
       return c.json(response.success(profile, "Profile fetched successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 404));
+      throw new Error(error.message);
     }
   },
 
@@ -51,7 +51,7 @@ const userController = {
     const data = await c.req.json();
     const validation = updateProfileValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
@@ -62,7 +62,7 @@ const userController = {
       );
       return c.json(response.success(updatedUser, "Profile updated successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 
@@ -71,7 +71,7 @@ const userController = {
     const data = await c.req.json();
     const validation = updatePasswordValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
@@ -82,7 +82,7 @@ const userController = {
       );
       return c.json(response.success(updatedUser, "Password updated successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   }
 };

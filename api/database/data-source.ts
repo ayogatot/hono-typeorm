@@ -46,4 +46,15 @@ const AppDataSource = new DataSource({
   }
 });
 
+setInterval(() => {
+  console.log("Checking database connection...");
+  AppDataSource.query("SELECT 1")
+    .then(() => {
+      console.log("Database connection is healthy");
+    })
+    .catch((error) => {
+      console.error("Database connection error:", error);
+    });
+}, 30000); // Check every 30 seconds
+
 export { AppDataSource };

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   OneToMany,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
 
@@ -21,6 +22,9 @@ export class PaymentMethod {
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 
   @OneToMany(() => Transaction, (transaction) => transaction.payment_method)
   transactions!: Transaction[];

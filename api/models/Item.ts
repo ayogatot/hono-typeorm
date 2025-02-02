@@ -7,6 +7,8 @@ import {
   OneToMany,
   type Relation,
   JoinColumn,
+  DeleteDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Category } from "./Category";
 import { Unit } from "./Unit";
@@ -40,6 +42,14 @@ export class Item {
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 
+  @UpdateDateColumn({ type: "timestamp" })
+  updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
+
   @OneToMany(() => ItemStock, (itemStock) => itemStock.item)
   item_stocks!: ItemStock[];
+
+  
 }

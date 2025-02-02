@@ -15,14 +15,14 @@ const categoryController = {
     const data = await c.req.json();
     const validation = createCategoryValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
       const category = await categoryService.createCategory(data);
       return c.json(response.success(category, "Category created successfully", 201));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 
@@ -32,7 +32,7 @@ const categoryController = {
       const category = await categoryService.getCategoryById(id);
       return c.json(response.success(category, "Category fetched successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 404));
+      throw new Error(error.message);
     }
   },
 
@@ -41,14 +41,14 @@ const categoryController = {
     const data = await c.req.json();
     const validation = updateCategoryValidator.safeParse(data);
     if (!validation.success) {
-      return c.json(response.error(validation.error.message, 400));
+      throw new Error(validation.error.message);
     }
 
     try {
       const updatedCategory = await categoryService.updateCategory(id, data);
       return c.json(response.success(updatedCategory, "Category updated successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 
@@ -58,7 +58,7 @@ const categoryController = {
       const res = await categoryService.deleteCategory(id);
       return c.json(response.success(res, "Category deleted successfully", 200));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 };

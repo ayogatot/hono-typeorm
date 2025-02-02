@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   OneToMany,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
 
@@ -27,6 +28,9 @@ export class Discount {
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 
   @OneToMany(() => Transaction, (transaction) => transaction.discount)
   transactions!: Transaction[];

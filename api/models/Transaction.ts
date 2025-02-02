@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   type Relation,
   JoinColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { User } from "./User";
 import { Discount } from "./Discount";
@@ -68,6 +69,9 @@ export class Transaction {
 
   @UpdateDateColumn({ type: "timestamp" })
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: "timestamp" })
+  deleted_at!: Date;
 
   @OneToMany(
     () => TransactionItem,

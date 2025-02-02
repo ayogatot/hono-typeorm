@@ -26,7 +26,7 @@ export class CategoryService {
   }
 
   async deleteCategory(id: number) {
-    await this.categoryRepository.delete(id);
+    await this.categoryRepository.softDelete(id);
     return { message: "Category deleted successfully" };
   }
 }

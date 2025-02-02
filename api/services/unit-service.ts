@@ -26,7 +26,7 @@ export class UnitService {
   }
 
   async deleteUnit(id: number) {
-    await this.unitRepository.delete(id);
+    await this.unitRepository.softDelete(id);
     return { message: "Unit deleted successfully" };
   }
 } 
