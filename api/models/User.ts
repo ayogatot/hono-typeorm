@@ -10,7 +10,7 @@ import {
 
 import { ItemStock } from "./ItemStock";
 import { Transaction } from "./Transaction";
-
+import { Expense } from "./Expense";
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn()
@@ -42,4 +42,7 @@ export class User {
 
   @OneToMany(() => Transaction, (transaction) => transaction.buyer)
   transactions!: Transaction[];
+
+  @OneToMany(() => Expense, (expense) => expense.added_by)
+  expenses!: Expense[];
 }

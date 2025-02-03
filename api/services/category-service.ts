@@ -25,7 +25,7 @@ export class CategoryService {
         [sortBy]: sortOrder
       },
       skip: (page - 1) * limit,
-      take: limit
+      take: limit,
     });
     
     return {

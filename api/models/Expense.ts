@@ -5,7 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  type Relation,
+  JoinColumn,
+  ManyToOne,
 } from "typeorm";
+import { User } from "./User";
 
 @Entity("expenses")
 export class Expense {
@@ -17,6 +21,10 @@ export class Expense {
 
   @Column({ type: "varchar" })
   note!: string;
+
+  @ManyToOne(() => User, (user) => user.expenses)
+  @JoinColumn({ name: "added_by_id" })
+  added_by!: Relation<User>;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
