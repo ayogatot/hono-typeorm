@@ -1,3 +1,4 @@
+import { ILike } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { Category } from "../models/Category";
 
@@ -9,8 +10,33 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  async getAllCategories() {
-    return this.categoryRepository.find();
+  async getAllCategories(query: any) {
+    const { page = 1, limit = 10, search, sortBy = "created_at", sortOrder = "DESC" } = query;
+    
+    const whereClause = search 
+      ? [
+          { name: ILike(`%${search}%`) }
+        ]
+      : {};
+
+    const [categories, total] = await this.categoryRepository.findAndCount({
+      where: whereClause,
+      order: {
+        [sortBy]: sortOrder
+      },
+      skip: (page - 1) * limit,
+      take: limit
+    });
+    
+    return {
+      data: categories,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
+      }
+    };
   }
 
   async getCategoryById(id: number) {

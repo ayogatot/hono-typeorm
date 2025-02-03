@@ -7,8 +7,13 @@ const paymentMethodService = new PaymentMethodService();
 
 const paymentMethodController = {
   getAllPaymentMethods: async (c: Context) => {
-    const paymentMethods = await paymentMethodService.getAllPaymentMethods();
-    return c.json(response.success(paymentMethods, "PaymentMethods fetched successfully", 200));
+    try {
+      const query = c.req.queries();
+      const paymentMethods = await paymentMethodService.getAllPaymentMethods(query);
+      return c.json(response.successPagination(paymentMethods.data, "Payment methods fetched successfully", 200, paymentMethods.pagination));
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   },
 
   createPaymentMethod: async (c: Context) => {

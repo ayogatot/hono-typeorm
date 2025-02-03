@@ -1,3 +1,4 @@
+import { ILike } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { PaymentMethod } from "../models/PaymentMethod";
 
@@ -9,8 +10,33 @@ export class PaymentMethodService {
     return this.paymentMethodRepository.save(paymentMethod);
   }
 
-  async getAllPaymentMethods() {
-    return this.paymentMethodRepository.find();
+  async getAllPaymentMethods(query: any) {
+    const { page = 1, limit = 10, search, sortBy = "created_at", sortOrder = "DESC" } = query;
+    
+    const whereClause = search 
+      ? [
+          { name: ILike(`%${search}%`) }
+        ]
+      : {};
+
+    const [paymentMethods, total] = await this.paymentMethodRepository.findAndCount({
+      where: whereClause,
+      order: {
+        [sortBy]: sortOrder
+      },
+      skip: (page - 1) * limit,
+      take: limit
+    });
+    
+    return {
+      data: paymentMethods,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
+      }
+    };
   }
 
   async getPaymentMethodById(id: number) {

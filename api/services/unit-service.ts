@@ -1,3 +1,4 @@
+import { ILike } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { Unit } from "../models/Unit";
 
@@ -9,8 +10,33 @@ export class UnitService {
     return this.unitRepository.save(unit);
   }
 
-  async getAllUnits() {
-    return this.unitRepository.find();
+  async getAllUnits(query: any) {
+    const { page = 1, limit = 10, search, sortBy = "created_at", sortOrder = "DESC" } = query;
+    
+    const whereClause = search 
+      ? [
+          { name: ILike(`%${search}%`) }
+        ]
+      : {};
+
+    const [units, total] = await this.unitRepository.findAndCount({
+      where: whereClause,
+      order: {
+        [sortBy]: sortOrder
+      },
+      skip: (page - 1) * limit,
+      take: limit
+    });
+    
+    return {
+      data: units,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
+      }
+    };
   }
 
   async getUnitById(id: number) {

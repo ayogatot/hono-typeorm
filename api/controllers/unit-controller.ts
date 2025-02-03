@@ -8,10 +8,11 @@ const unitService = new UnitService();
 const unitController = {
   getAllUnits: async (c: Context) => {
     try {
-      const units = await unitService.getAllUnits();
-      return c.json(response.success(units, "Units fetched successfully", 200));
+      const query = c.req.queries();
+      const units = await unitService.getAllUnits(query);
+      return c.json(response.successPagination(units.data, "Units fetched successfully", 200, units.pagination));
     } catch (error: any) {
-      return c.json(response.error(error.message, 400));
+      throw new Error(error.message);
     }
   },
 

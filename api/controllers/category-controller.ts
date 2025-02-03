@@ -7,8 +7,13 @@ const categoryService = new CategoryService();
 
 const categoryController = {
   getAllCategories: async (c: Context) => {
-    const categories = await categoryService.getAllCategories();
-    return c.json(response.success(categories, "Categories fetched successfully", 200));
+    try {
+      const query = c.req.queries();
+      const categories = await categoryService.getAllCategories(query);
+      return c.json(response.successPagination(categories.data, "Categories fetched successfully", 200, categories.pagination));
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   },
 
   createCategory: async (c: Context) => {
