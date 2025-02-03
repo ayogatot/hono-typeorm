@@ -20,6 +20,9 @@ export class Discount {
   @Column({ type: "varchar", unique: true })
   code!: string;
 
+  @Column({ type: "integer" })
+  quota!: number;
+
   @Column({ type: "double" })
   discount_price!: number;
 

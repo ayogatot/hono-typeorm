@@ -5,5 +5,8 @@ export const response = {
   error: (message: string | object, status: number) => {
     return { data: null, message, status };
   },
+  successPagination: (data: any, message: string, status: number, pagination: any) => {
+    return { data, message, status, pagination };
+  }
 };
 
