@@ -47,6 +47,7 @@ export class ItemService {
       relations: {
         category: true,
         unit: true,
+        item_stocks: true,
       },
       select: {
         id: true,
@@ -63,6 +64,12 @@ export class ItemService {
         unit: {
           id: true,
           name: true,
+        },
+        item_stocks: {
+          id: true,
+          quantity: true,
+          buying_price: true,
+          sell_price: true,
         },
       },
     });
