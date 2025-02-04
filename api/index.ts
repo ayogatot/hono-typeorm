@@ -11,6 +11,7 @@ import unitRoutes from "./routes/unit-route";
 import paymentMethodRoutes from "./routes/payment-method-route";
 import discountRoutes from "./routes/discount-route";
 import expenseRoutes from "./routes/expense-route";
+import itemRoutes from "./routes/item-route";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -31,6 +32,7 @@ app
   .route("/discounts", discountRoutes)
   .route("/payment-methods", paymentMethodRoutes)
   .route("/expenses", expenseRoutes)
+  .route("/items", itemRoutes)
   .onError(errorMiddleware);
 
 export default app;

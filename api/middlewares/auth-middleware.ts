@@ -6,7 +6,7 @@ export async function authMiddleware(c: Context, next: Next) {
     const authHeader = c.req.header("Authorization");
     const token = JWT.extractToken(authHeader);
     const payload = await JWT.verify(token);
-    
+
     c.set("user", payload);
     await next();
   } catch (error) {

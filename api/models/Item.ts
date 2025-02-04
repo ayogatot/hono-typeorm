@@ -27,7 +27,7 @@ export class Item {
   @JoinColumn({ name: "unit_id" })
   unit!: Relation<Unit>;
 
-  @Column({ type: "varchar", nullable: true })
+  @Column({ type: "varchar", nullable: true, unique: true })
   code!: string;
 
   @Column({ type: "varchar" })
@@ -36,7 +36,7 @@ export class Item {
   @Column({ type: "int" })
   total_quantity!: number;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "enum", enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" })
   status!: string;
 
   @CreateDateColumn({ type: "timestamp" })
