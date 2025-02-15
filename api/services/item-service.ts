@@ -19,6 +19,7 @@ export class ItemService {
     // Set default values for total quantity and status
     itemData.total_quantity = 0;
     itemData.status = "ACTIVE";
+    itemData.selling_price = itemData.selling_price || 0; // Add default selling price if not provided
 
     const item = this.itemRepository.create(itemData);
     return this.itemRepository.save(item);
@@ -54,6 +55,7 @@ export class ItemService {
         code: true,
         name: true,
         total_quantity: true,
+        selling_price: true,
         status: true,
         created_at: true,
         updated_at: true,

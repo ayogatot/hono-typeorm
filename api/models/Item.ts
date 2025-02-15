@@ -36,6 +36,9 @@ export class Item {
   @Column({ type: "int" })
   total_quantity!: number;
 
+  @Column({ type: "double" })
+  selling_price!: number;
+
   @Column({ type: "enum", enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" })
   status!: string;
 
