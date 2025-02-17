@@ -12,7 +12,7 @@ const transactionController = {
       const transactions = await transactionService.getAllTransactions(query);
       return c.json(response.successPagination(transactions.data, "Transactions fetched successfully", 200, transactions.pagination));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
@@ -20,7 +20,7 @@ const transactionController = {
     const data = await c.req.json();
     const validation = createTransactionValidator.safeParse(data);
     if (!validation.success) {
-      throw new Error(validation.error.message);
+      throw validation.error;
     }
 
     try {
@@ -28,7 +28,7 @@ const transactionController = {
       const transaction = await transactionService.createTransaction(data, user.id);
       return c.json(response.success(transaction, "Transaction created successfully", 201));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
@@ -38,7 +38,7 @@ const transactionController = {
       const transaction = await transactionService.getTransactionById(id);
       return c.json(response.success(transaction, "Transaction fetched successfully", 200));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
@@ -47,14 +47,14 @@ const transactionController = {
     const data = await c.req.json();
     const validation = updateTransactionValidator.safeParse(data);
     if (!validation.success) {
-      throw new Error(validation.error.message);
+      throw validation.error;
     }
 
     try {
       const updatedTransaction = await transactionService.updateTransaction(id, data);
       return c.json(response.success(updatedTransaction, "Transaction updated successfully", 200));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
@@ -64,7 +64,7 @@ const transactionController = {
       const res = await transactionService.deleteTransaction(id);
       return c.json(response.success(res, "Transaction deleted successfully", 200));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 };

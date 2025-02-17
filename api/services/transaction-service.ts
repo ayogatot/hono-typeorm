@@ -7,8 +7,7 @@ import { Item } from "../models/Item";
 
 export class TransactionService {
   private transactionRepository = AppDataSource.getRepository(Transaction);
-  private transactionItemRepository =
-    AppDataSource.getRepository(TransactionItem);
+  private transactionItemRepository = AppDataSource.getRepository(TransactionItem);
   private itemStockRepository = AppDataSource.getRepository(ItemStock);
   private itemRepository = AppDataSource.getRepository(Item);
 
