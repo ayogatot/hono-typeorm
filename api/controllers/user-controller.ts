@@ -84,6 +84,17 @@ const userController = {
     } catch (error: any) {
       throw new Error(error.message);
     }
+  },
+
+  getAllUsers: async (c: Context) => {
+    try {
+      const query = c.req.queries();
+
+      const users = await userService.getAllUsers(query);
+      return c.json(response.successPagination(users.data, "Users fetched successfully", 200, users.pagination));
+    } catch (error: any) {
+      throw error;
+    }
   }
 };
 

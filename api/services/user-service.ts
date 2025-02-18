@@ -1,9 +1,13 @@
 import { Repository } from "typeorm";
 import { User } from "../models/User";
 import { AppDataSource } from "../database/data-source";
-import { registerValidator, loginValidator } from "../validators/user-validator";
+import {
+  registerValidator,
+  loginValidator,
+} from "../validators/user-validator";
 import { z } from "zod";
-import { JWT } from "../utils/jwt"; 
+import { JWT } from "../utils/jwt";
+import { ILike } from "typeorm";
 
 export class UserService {
   private readonly userRepository: Repository<User>;
@@ -33,7 +37,9 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async login(request: z.infer<typeof loginValidator>): Promise<{ user: User; token: string }> {
+  async login(
+    request: z.infer<typeof loginValidator>
+  ): Promise<{ user: User; token: string }> {
     const user = await this.userRepository.findOne({
       where: { email: request.email },
     });
@@ -42,7 +48,10 @@ export class UserService {
       throw new Error("Invalid email or password");
     }
 
-    const validPassword = await Bun.password.verify(request.password, user.password);
+    const validPassword = await Bun.password.verify(
+      request.password,
+      user.password
+    );
     if (!validPassword) {
       throw new Error("Invalid email or password");
     }
@@ -50,7 +59,7 @@ export class UserService {
     const token = await JWT.sign({
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     return { user, token };
@@ -68,11 +77,7 @@ export class UserService {
     return user;
   }
 
-  async updateProfile(
-    id: number,
-    name: string,
-    email: string
-  ): Promise<User> {
+  async updateProfile(id: number, name: string, email: string): Promise<User> {
     const user = await this.findById(id);
 
     // Check if new email is already taken by another user
@@ -109,4 +114,51 @@ export class UserService {
 
     return this.userRepository.save(user);
   }
-} 
+
+  async getAllUsers(query: any) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      sortBy = "created_at",
+      sortOrder = "DESC",
+    } = query;
+
+    const whereClause: any = {};
+
+    if (search) {
+      whereClause.name = ILike(`%${search}%`);
+    }
+
+    if (role) {
+      whereClause.role = role;
+    }
+
+    const [users, total] = await this.userRepository.findAndCount({
+      where: whereClause,
+      order: {
+        [sortBy]: sortOrder,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        created_at: true,
+      },
+    });
+
+    return {
+      data: users,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
+      },
+    };
+  }
+}
