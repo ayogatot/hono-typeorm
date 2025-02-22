@@ -23,8 +23,11 @@ export class Discount {
   @Column({ type: "integer" })
   quota!: number;
 
-  @Column({ type: "double" })
+  @Column({ type: "double",  nullable: true  })
   discount_price!: number;
+
+  @Column({ type: "double", nullable: true })
+  discount_percentage!: number;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
