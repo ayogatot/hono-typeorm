@@ -44,6 +44,9 @@ export class Transaction {
   subtotal!: number;
 
   @Column({ type: "varchar", nullable: true })
+  image?: string;
+
+  @Column({ type: "varchar", nullable: true })
   name?: string;
 
   @Column({ type: "varchar", nullable: true })

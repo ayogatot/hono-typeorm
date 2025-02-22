@@ -14,7 +14,8 @@ export const createTransactionValidator = z.object({
     term_count: z.number().positive().optional(),
     term_deadline: z.string().optional(), // Date will be parsed in service
     notes: z.record(z.string()).optional(),
-    items: z.array(transactionItemSchema).min(1)
+    items: z.array(transactionItemSchema).min(1),
+    image: z.string().optional()
 })
 
 export const updateTransactionValidator = z.object({
@@ -26,5 +27,6 @@ export const updateTransactionValidator = z.object({
     term_count: z.number().positive().optional(),
     term_deadline: z.string().optional(),
     notes: z.record(z.string()).optional(),
-    status: z.enum(["PAID", "NOT_PAID"]).optional()
+    status: z.enum(["PAID", "NOT_PAID"]).optional(),
+    image: z.string().optional()
 }) 

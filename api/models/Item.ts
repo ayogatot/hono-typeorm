@@ -33,6 +33,9 @@ export class Item {
   @Column({ type: "varchar" })
   name!: string;
 
+  @Column({ type: "varchar", nullable: true })
+  image!: string;
+
   @Column({ type: "int" })
   total_quantity!: number;
 

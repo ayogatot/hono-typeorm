@@ -167,6 +167,7 @@ export class TransactionService {
               item: true,
             },
           },
+          term_payments: true,
         },
       }
     );

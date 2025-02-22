@@ -23,6 +23,9 @@ export class TermPayment {
   @Column({ type: "double" })
   amount!: number;
 
+  @Column({ type: "varchar", nullable: true })
+  image?: string;
+
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 

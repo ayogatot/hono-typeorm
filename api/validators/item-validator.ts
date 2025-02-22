@@ -5,7 +5,8 @@ export const createItemValidator = z.object({
     unit: z.number().positive(),
     code: z.string().min(3).max(50).optional(),
     name: z.string().min(3).max(100).nonempty(),
-    selling_price: z.number().positive()
+    selling_price: z.number().positive(),
+    image: z.string().optional()
 })
 
 export const updateItemValidator = z.object({
@@ -14,5 +15,6 @@ export const updateItemValidator = z.object({
     code: z.string().min(3).max(50).optional(),
     name: z.string().min(3).max(100).optional(),
     status: z.string().optional(),
-    selling_price: z.number().positive().optional()
+    selling_price: z.number().positive().optional(),
+    image: z.string().optional()
 }) 

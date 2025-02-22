@@ -54,6 +54,7 @@ export class ItemService {
         id: true,
         code: true,
         name: true,
+        image: true,
         total_quantity: true,
         selling_price: true,
         status: true,
@@ -101,16 +102,12 @@ export class ItemService {
   }
 
   async updateItem(id: number, itemData: Partial<Item>) {
-    if (itemData.code) {
-      const existingItem = await this.itemRepository.findOne({
-        where: { code: itemData.code },
-      });
+    const existingItem = await this.itemRepository.findOne({
+      where: { id },
+    });
 
-      if (!existingItem) {
-        throw new Error("Item not found");
-      }
-
-      itemData.total_quantity = existingItem.total_quantity;
+    if (!existingItem) {
+      throw new Error("Item not found");
     }
 
     await this.itemRepository.update(id, itemData);

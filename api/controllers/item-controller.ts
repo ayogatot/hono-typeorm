@@ -20,14 +20,14 @@ const itemController = {
     const data = await c.req.json();
     const validation = createItemValidator.safeParse(data);
     if (!validation.success) {
-      throw new Error(validation.error.message);
+      throw validation.error;
     }
 
     try {
       const item = await itemService.createItem(data);
       return c.json(response.success(item, "Item created successfully", 201));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
@@ -46,15 +46,14 @@ const itemController = {
     const data = await c.req.json();
     const validation = updateItemValidator.safeParse(data);
     if (!validation.success) {
-      throw new Error(validation.error.message);
+      throw validation.error;
     }
 
     try {
       const updatedItem = await itemService.updateItem(id, data);
-      console.log({updatedItem})
       return c.json(response.success(updatedItem, "Item updated successfully", 200));
     } catch (error: any) {
-      throw new Error(error.message);
+      throw error;
     }
   },
 
