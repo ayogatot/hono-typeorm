@@ -24,4 +24,8 @@ export const updateProfileValidator = z.object({
 
 export const getAllUsersValidator = z.object({
     role: z.enum(["ADMIN", "CASHIER", "USER"]).optional()
+})
+
+export const adminUpdatePasswordValidator = z.object({
+    new_password: z.string().min(6).max(100).nonempty()
 }) 

@@ -14,6 +14,10 @@ export class DiscountService {
       throw new Error("Discount code already exists");
     }
 
+    if (discountData.discount_percentage && discountData.discount_percentage > 100) {
+      throw new Error("Discount percentage cannot exceed 100%");
+    }
+
     const discount = this.discountRepository.create(discountData);
     return this.discountRepository.save(discount);
   }
@@ -69,6 +73,10 @@ export class DiscountService {
       if (existingDiscount && existingDiscount.id !== id) {
         throw new Error("Discount code already exists");
       }
+    }
+
+    if (discountData.discount_percentage && discountData.discount_percentage > 100) {
+      throw new Error("Discount percentage cannot exceed 100%");
     }
 
     await this.discountRepository.update(id, discountData);

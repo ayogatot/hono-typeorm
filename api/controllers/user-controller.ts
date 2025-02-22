@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { UserService } from "../services/user-service";
 import { response } from "../utils/response";
-import { registerValidator, loginValidator, updatePasswordValidator, updateProfileValidator } from "../validators/user-validator";
+import { registerValidator, loginValidator, updatePasswordValidator, updateProfileValidator, adminUpdatePasswordValidator } from "../validators/user-validator";
 
 const userService = new UserService();
 
@@ -83,6 +83,22 @@ const userController = {
       return c.json(response.success(updatedUser, "Password updated successfully", 200));
     } catch (error: any) {
       throw new Error(error.message);
+    }
+  },
+
+  adminUpdatePassword: async (c: Context) => {
+    const userId = parseInt(c.req.param("id"));
+    const data = await c.req.json();
+    const validation = adminUpdatePasswordValidator.safeParse(data);
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    try {
+      const result = await userService.adminUpdatePassword(userId, data.new_password);
+      return c.json(response.success(result, "Password updated successfully", 200));
+    } catch (error: any) {
+      throw error;
     }
   },
 

@@ -161,4 +161,19 @@ export class UserService {
       },
     };
   }
+
+  async adminUpdatePassword(userId: number, newPassword: string) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const hashedPassword = await Bun.password.hash(newPassword);
+    await this.userRepository.update(userId, { password: hashedPassword });
+
+    return { message: "Password updated successfully" };
+  }
 }

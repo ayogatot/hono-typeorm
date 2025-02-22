@@ -18,4 +18,8 @@ userRoutes.put("/profile/password", userController.updatePassword);
 userRoutes.use("/", authMiddleware, requireRole(["ADMIN"]));
 userRoutes.get("/", userController.getAllUsers);
 
+// Add this with other admin routes
+userRoutes.use("/*/password", authMiddleware, requireRole(["ADMIN"]));
+userRoutes.put("/:id/password", userController.adminUpdatePassword);
+
 export default userRoutes; 
