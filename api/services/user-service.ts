@@ -97,6 +97,20 @@ export class UserService {
     return this.findById(id);
   }
 
+  async updateUser(id: number, data: any): Promise<User> {
+    const user = await this.findById(id);
+    if (data.email !== user.email) {
+      const existingUser = await this.userRepository.findOne({
+        where: { email: data.email },
+      });
+      if (existingUser) {
+        throw new Error("Email already taken");
+      }
+    }
+    await this.userRepository.update(id, data);
+    return this.findById(id);
+  }
+
   async updatePassword(
     id: number,
     oldPassword: string,

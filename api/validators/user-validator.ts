@@ -22,6 +22,12 @@ export const updateProfileValidator = z.object({
     email: z.string().email().nonempty()
 })
 
+export const updateUserValidator = z.object({
+    name: z.string().min(3).max(50).nonempty(),
+    email: z.string().email().nonempty(),
+    role: z.enum(["ADMIN", "CASHIER", "USER"]).optional()
+})
+
 export const getAllUsersValidator = z.object({
     role: z.enum(["ADMIN", "CASHIER", "USER"]).optional()
 })
