@@ -17,5 +17,6 @@ itemStockRoutes.use("/*", requireRole(["ADMIN"]));
 itemStockRoutes.post("/", itemStockController.createItemStock);
 itemStockRoutes.put("/:id", itemStockController.updateItemStock);
 itemStockRoutes.delete("/:id", itemStockController.deleteItemStock);
+itemStockRoutes.post("/batch", itemStockController.batchCreateItemStock);
 
 export default itemStockRoutes; 

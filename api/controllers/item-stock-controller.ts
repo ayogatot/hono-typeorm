@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { ItemStockService } from "../services/item-stock-service";
 import { response } from "../utils/response";
-import { createItemStockValidator, updateItemStockValidator } from "../validators/item-stock-validator";
+import { createItemStockValidator, updateItemStockValidator, batchCreateItemStockValidator } from "../validators/item-stock-validator";
 
 const itemStockService = new ItemStockService();
 
@@ -68,6 +68,22 @@ const itemStockController = {
       return c.json(response.success(res, "Item stock deleted successfully", 200));
     } catch (error: any) {
       throw new Error(error.message);
+    }
+  },
+
+  batchCreateItemStock: async (c: Context) => {
+    const data = await c.req.json();
+    const validation = batchCreateItemStockValidator.safeParse(data);
+    if (!validation.success) {
+        throw validation.error;
+    }
+
+    try {
+        const user = c.get("user");
+        const itemStocks = await itemStockService.batchCreateItemStock(data, user.id);
+        return c.json(response.success(itemStocks, "Item stocks created successfully", 201));
+    } catch (error: any) {
+        throw error;
     }
   },
 };

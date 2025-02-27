@@ -13,6 +13,7 @@ export class ItemStockService {
 
     try {
       // Create the item stock
+      itemStockData.initial_quantity = itemStockData.quantity;
       const itemStock = this.itemStockRepository.create(itemStockData);
       await queryRunner.manager.save(itemStock);
 
@@ -164,6 +165,50 @@ export class ItemStockService {
 
       await queryRunner.commitTransaction();
       return { message: "ItemStock deleted successfully" };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async batchCreateItemStock(itemStocksData: { items: Partial<ItemStock>[] }, userId: number) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const results = [];
+
+      for (const itemStockData of itemStocksData.items) {
+        // Create the item stock
+        itemStockData.initial_quantity = itemStockData.quantity;
+        itemStockData.added_by = { id: userId } as any;
+        const itemStock = this.itemStockRepository.create(itemStockData);
+        await queryRunner.manager.save(itemStock);
+
+        if (!itemStockData.item) {
+          throw new Error("Item not found");
+        }
+
+        // Update the item's total quantity
+        const item = await this.itemRepository.findOne({
+          where: { id: itemStockData.item as any }
+        });
+
+        if (!item) {
+          throw new Error(`Item with id ${itemStockData.item} not found`);
+        }
+
+        item.total_quantity = (item.total_quantity || 0) + itemStock.quantity;
+        await queryRunner.manager.save(item);
+
+        results.push(itemStock);
+      }
+
+      await queryRunner.commitTransaction();
+      return results;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

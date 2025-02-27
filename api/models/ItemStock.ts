@@ -28,6 +28,9 @@ export class ItemStock {
   added_by!: Relation<User>;
 
   @Column({ type: "int" })
+  initial_quantity!: number;
+
+  @Column({ type: "int" })
   quantity!: number;
 
   @Column({ type: "double" })
