@@ -140,43 +140,52 @@ export class TransactionService {
       paymentMethodIds,
     } = query;
 
-    const whereClause: any = {};
+    const whereClause: any = [];
 
     if (search) {
-      whereClause.name = ILike(`%${search}%`);
+      whereClause.push([
+        { name: ILike(`%${search}%`) },
+        { 
+          transaction_items: {
+            item_stock: {
+              item: {
+                name: ILike(`%${search}%`)
+              }
+            }
+          }
+        }
+      ]);
     }
 
     if (status) {
-      whereClause.status = status;
+      whereClause.push({ status });
     }
 
     if (paymentMethodIds && paymentMethodIds !== "" && paymentMethodIds.length > 0 && paymentMethodIds[0] !== "") {
       const paymentMethodIdsArray = paymentMethodIds[0].split(",");
-      whereClause.payment_method = In(paymentMethodIdsArray);
+      whereClause.push({ payment_method: In(paymentMethodIdsArray) });
     }
 
-    const [transactions, total] = await this.transactionRepository.findAndCount(
-      {
-        where: whereClause,
-        order: {
-          [sortBy]: sortOrder,
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-        relations: {
-          cashier: true,
-          buyer: true,
-          discount: true,
-          payment_method: true,
-          transaction_items: {
-            item_stock: {
-              item: true,
-            },
+    const [transactions, total] = await this.transactionRepository.findAndCount({
+      where: whereClause.length > 0 ? whereClause : {},
+      order: {
+        [sortBy]: sortOrder,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: {
+        cashier: true,
+        buyer: true,
+        discount: true,
+        payment_method: true,
+        transaction_items: {
+          item_stock: {
+            item: true,
           },
-          term_payments: true,
         },
-      }
-    );
+        term_payments: true,
+      },
+    });
 
     return {
       data: transactions,
