@@ -1,4 +1,4 @@
-import { ILike } from "typeorm";
+import { ILike, In } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { Transaction } from "../models/Transaction";
 import { TransactionItem } from "../models/TransactionItem";
@@ -137,6 +137,7 @@ export class TransactionService {
       sortBy = "created_at",
       sortOrder = "DESC",
       status,
+      paymentMethodIds,
     } = query;
 
     const whereClause: any = {};
@@ -147,6 +148,11 @@ export class TransactionService {
 
     if (status) {
       whereClause.status = status;
+    }
+
+    if (paymentMethodIds && paymentMethodIds !== "" && paymentMethodIds.length > 0 && paymentMethodIds[0] !== "") {
+      const paymentMethodIdsArray = paymentMethodIds[0].split(",");
+      whereClause.payment_method = In(paymentMethodIdsArray);
     }
 
     const [transactions, total] = await this.transactionRepository.findAndCount(

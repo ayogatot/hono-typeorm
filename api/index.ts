@@ -16,6 +16,7 @@ import itemStockRoutes from "./routes/item-stock-route";
 import transactionRoutes from "./routes/transaction-route";
 import termPaymentRoutes from "./routes/term-payment-route";
 import imageRoutes from "./routes/image-route";
+import syncRoutes from "./routes/sync-routes";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -41,6 +42,7 @@ app
   .route("/transactions", transactionRoutes)
   .route("/term-payments", termPaymentRoutes)
   .route("/images", imageRoutes)
+  .route("/sync", syncRoutes)
   .onError(errorMiddleware);
 
 export default app;
