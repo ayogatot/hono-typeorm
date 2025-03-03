@@ -140,34 +140,29 @@ export class TransactionService {
       paymentMethodIds,
     } = query;
 
-    const whereClause: any = [];
-
-    if (search) {
-      whereClause.push([
-        { name: ILike(`%${search}%`) },
-        { 
-          transaction_items: {
-            item_stock: {
-              item: {
-                name: ILike(`%${search}%`)
-              }
-            }
-          }
-        }
-      ]);
-    }
+    const whereClause: any = {};
 
     if (status) {
-      whereClause.push({ status });
+      whereClause.status = status;
     }
 
     if (paymentMethodIds && paymentMethodIds !== "" && paymentMethodIds.length > 0 && paymentMethodIds[0] !== "") {
       const paymentMethodIdsArray = paymentMethodIds[0].split(",");
-      whereClause.push({ payment_method: In(paymentMethodIdsArray) });
+      whereClause.payment_method = In(paymentMethodIdsArray);
+    }
+
+    if (search) {
+      whereClause.transaction_items = {
+        item_stock: {
+          item: {
+            name: ILike(`%${search}%`)
+          }
+        }
+      };
     }
 
     const [transactions, total] = await this.transactionRepository.findAndCount({
-      where: whereClause.length > 0 ? whereClause : {},
+      where: whereClause,
       order: {
         [sortBy]: sortOrder,
       },
