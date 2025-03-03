@@ -1,4 +1,4 @@
-import { ILike } from "typeorm";
+import { ILike, In } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { Item } from "../models/Item";
 
@@ -32,7 +32,7 @@ export class ItemService {
       search,
       sortBy = "created_at",
       sortOrder = "DESC",
-      categoryId,
+      categoryIds,
       unitId,
     } = query;
 
@@ -45,9 +45,10 @@ export class ItemService {
       ];
     }
 
-    if (categoryId) {
+    if (categoryIds && categoryIds !== "" && categoryIds.length > 0 && categoryIds[0] !== "") {
+      const categoryIdsArray = categoryIds[0].split(",");
       whereClause.category = {
-        id: categoryId,
+        id: In(categoryIdsArray),
       };
     }
 
