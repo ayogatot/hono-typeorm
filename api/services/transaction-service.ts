@@ -140,7 +140,7 @@ export class TransactionService {
       paymentMethodIds,
     } = query;
 
-    const whereClause: any = {};
+    let whereClause: any = {};
 
     if (status) {
       whereClause.status = status;
@@ -152,13 +152,19 @@ export class TransactionService {
     }
 
     if (search) {
-      whereClause.transaction_items = {
-        item_stock: {
-          item: {
-            name: ILike(`%${search}%`)
-          }
-        }
-      };
+      whereClause = [
+        { name: ILike(`%${search}%`) },
+        {
+          transaction_items: {
+            item_stock: {
+              item: [
+                { name: ILike(`%${search}%`) },
+                { code: ILike(`%${search}%`) },
+              ],
+            },
+          },
+        },
+      ];
     }
 
     const [transactions, total] = await this.transactionRepository.findAndCount({

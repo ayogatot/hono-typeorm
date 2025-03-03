@@ -32,11 +32,30 @@ export class ItemService {
       search,
       sortBy = "created_at",
       sortOrder = "DESC",
+      categoryId,
+      unitId,
     } = query;
 
-    const whereClause = search
-      ? [{ name: ILike(`%${search}%`) }, { code: ILike(`%${search}%`) }]
-      : {};
+    let whereClause: any = {};
+
+    if (search) {
+      whereClause = [
+        { name: ILike(`%${search}%`) },
+        { code: ILike(`%${search}%`) }
+      ];
+    }
+
+    if (categoryId) {
+      whereClause.category = {
+        id: categoryId,
+      };
+    }
+
+    if (unitId) {
+      whereClause.unit = {
+        id: unitId,
+      };
+    }
 
     const [items, total] = await this.itemRepository.findAndCount({
       where: whereClause,
