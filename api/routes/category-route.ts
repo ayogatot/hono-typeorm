@@ -10,7 +10,7 @@ categoryRoutes.get("/", categoryController.getAllCategories);
 categoryRoutes.get("/:id", categoryController.getCategoryById);
 
 // Protected routes - only ADMIN and CASHIER can manage categories
-categoryRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "CASHIER"]));
+categoryRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 categoryRoutes.post("/", categoryController.createCategory);
 categoryRoutes.put("/:id", categoryController.updateCategory);
 categoryRoutes.delete("/:id", categoryController.deleteCategory);

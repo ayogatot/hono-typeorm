@@ -8,8 +8,8 @@ const unitRoutes = new Hono();
 unitRoutes.get("/", unitController.getAllUnits);
 unitRoutes.get("/:id", unitController.getUnitById);
 
-// Protected routes - only ADMIN and CASHIER can manage units
-unitRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "CASHIER"]));
+// Protected routes - only ADMIN and SUPER_ADMIN can manage units
+unitRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 unitRoutes.post("/", unitController.createUnit);
 unitRoutes.put("/:id", unitController.updateUnit);
 unitRoutes.delete("/:id", unitController.deleteUnit);

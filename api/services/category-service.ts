@@ -11,13 +11,35 @@ export class CategoryService {
   }
 
   async getAllCategories(query: any) {
-    const { page = 1, limit = 10, search, sortBy = "created_at", sortOrder = "DESC" } = query;
+    const { 
+      page = 1, 
+      limit = 10, 
+      search, 
+      sortBy = "created_at", 
+      sortOrder = "DESC",
+      type 
+    } = query;
     
-    const whereClause = search 
-      ? [
-          { name: ILike(`%${search}%`) }
-        ]
-      : {};
+    let whereClause: any = {};
+
+    if (search) {
+      whereClause = [
+        { name: ILike(`%${search}%`) }
+      ];
+    }
+
+    if (type) {
+      if (Array.isArray(whereClause)) {
+        // If we have search conditions, add type to each condition
+        whereClause = whereClause.map(condition => ({
+          ...condition,
+          type
+        }));
+      } else {
+        // If no search conditions, just add type directly
+        whereClause.type = type;
+      }
+    }
 
     const [categories, total] = await this.categoryRepository.findAndCount({
       where: whereClause,

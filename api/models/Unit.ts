@@ -17,6 +17,9 @@ export class Unit {
   @Column({ type: "varchar" })
   name!: string;
 
+  @Column({ type: "enum", enum: ["BUILDING", "CAFE"], default: "BUILDING" }) 
+  type!: "BUILDING" | "CAFE";
+
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 

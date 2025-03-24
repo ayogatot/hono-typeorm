@@ -12,6 +12,7 @@ import { TransactionItem } from "../models/TransactionItem";
 import { User } from "../models/User";
 import { Unit } from "../models/Unit";
 import { TermPayment } from "../models/TermPayment";
+import { Store } from "../models/Store";
 dotenv.config();
 
 const AppDataSource = new DataSource({
@@ -24,6 +25,7 @@ const AppDataSource = new DataSource({
   synchronize: true,
   logging: process.env.NODE_ENV === "dev",
   entities: [
+    Store,
     Category,
     Discount,
     Expense,
