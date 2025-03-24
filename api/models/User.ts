@@ -6,11 +6,15 @@ import {
   OneToMany,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  type Relation,
+  JoinColumn,
 } from "typeorm";
 
 import { ItemStock } from "./ItemStock";
 import { Transaction } from "./Transaction";
 import { Expense } from "./Expense";
+import { Store } from "./Store";
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn()
@@ -25,8 +29,8 @@ export class User {
   @Column({ type: "varchar" })
   password!: string;
 
-  @Column({ type: "enum", enum: ["ADMIN", "CASHIER", "USER"], default: "USER" })
-  role!: "ADMIN" | "CASHIER" | "USER";
+  @Column({ type: "enum", enum: ["SUPER_ADMIN", "ADMIN", "CASHIER", "USER"], default: "USER" })
+  role!: "SUPER_ADMIN" | "ADMIN" | "CASHIER" | "USER";
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
@@ -45,4 +49,8 @@ export class User {
 
   @OneToMany(() => Expense, (expense) => expense.added_by)
   expenses!: Expense[];
+
+  @ManyToOne(() => Store, (store) => store.users)
+  @JoinColumn({ name: "store_id" })
+  store!: Relation<Store>;  
 }

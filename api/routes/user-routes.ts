@@ -15,12 +15,12 @@ userRoutes.put("/profile", userController.updateProfile);
 userRoutes.put("/profile/password", userController.updatePassword);
 
 // Add this route before other routes
-userRoutes.use("/", authMiddleware, requireRole(["ADMIN"]));
+userRoutes.use("/", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 userRoutes.get("/", userController.getAllUsers);
 userRoutes.put("/:id", userController.updateUser);
 
 // Add this with other admin routes
-userRoutes.use("/*/password", authMiddleware, requireRole(["ADMIN"]));
+userRoutes.use("/*/password", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 userRoutes.put("/:id/password", userController.adminUpdatePassword);
 
 export default userRoutes; 

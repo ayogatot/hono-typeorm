@@ -8,12 +8,11 @@ const itemStockRoutes = new Hono();
 itemStockRoutes.use("/*", authMiddleware);
 
 // Read operations - ADMIN and CASHIER
-itemStockRoutes.use("/", requireRole(["ADMIN", "CASHIER"]));
 itemStockRoutes.get("/", itemStockController.getAllItemStocks);
 itemStockRoutes.get("/:id", itemStockController.getItemStockById);
 
-// Write operations - only ADMIN
-itemStockRoutes.use("/*", requireRole(["ADMIN"]));
+// Write operations - only ADMIN and SUPER_ADMIN
+itemStockRoutes.use("/*", requireRole(["ADMIN", "SUPER_ADMIN", "CASHIER"]));
 itemStockRoutes.post("/", itemStockController.createItemStock);
 itemStockRoutes.put("/:id", itemStockController.updateItemStock);
 itemStockRoutes.delete("/:id", itemStockController.deleteItemStock);

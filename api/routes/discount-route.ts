@@ -8,8 +8,8 @@ const discountRoutes = new Hono();
 discountRoutes.get("/", discountController.getAllDiscounts);
 discountRoutes.get("/:id", discountController.getDiscountById);
 
-// Protected routes - only ADMIN can manage discounts
-discountRoutes.use("/*", authMiddleware, requireRole(["ADMIN"]));
+// Protected routes - only ADMIN and SUPER_ADMIN can manage discounts
+discountRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 discountRoutes.post("/", discountController.createDiscount);
 discountRoutes.put("/:id", discountController.updateDiscount);
 discountRoutes.delete("/:id", discountController.deleteDiscount);

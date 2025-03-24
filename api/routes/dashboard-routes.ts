@@ -4,7 +4,7 @@ import { authMiddleware, requireRole } from "../middlewares/auth-middleware";
 
 const dashboardRouter = new Hono();
 
-dashboardRouter.use("/*", authMiddleware, requireRole(["ADMIN"]));
+dashboardRouter.use("/*", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN"]));
 dashboardRouter.get("/items", dashboardController.getDashboardMetrics);
 dashboardRouter.get("/revenue", dashboardController.getTotalRevenue);
 

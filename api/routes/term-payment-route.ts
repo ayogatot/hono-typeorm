@@ -5,7 +5,7 @@ import { authMiddleware, requireRole } from "../middlewares/auth-middleware";
 const termPaymentRoutes = new Hono();
 
 // All routes require authentication and ADMIN/CASHIER role
-termPaymentRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "CASHIER"]));
+termPaymentRoutes.use("/*", authMiddleware, requireRole(["ADMIN", "SUPER_ADMIN", "CASHIER"]));
 termPaymentRoutes.get("/", termPaymentController.getAllTermPayments);
 termPaymentRoutes.get("/:id", termPaymentController.getTermPaymentById);
 termPaymentRoutes.post("/", termPaymentController.createTermPayment);

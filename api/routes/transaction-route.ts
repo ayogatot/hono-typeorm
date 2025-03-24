@@ -8,7 +8,7 @@ const transactionRoutes = new Hono();
 transactionRoutes.use("/*", authMiddleware);
 
 // Read operations - ADMIN and CASHIER
-transactionRoutes.use("/", requireRole(["ADMIN", "CASHIER"]));
+transactionRoutes.use("/", requireRole(["ADMIN", "SUPER_ADMIN", "CASHIER"]));
 transactionRoutes.get("/", transactionController.getAllTransactions);
 transactionRoutes.get("/:id", transactionController.getTransactionById);
 
@@ -17,7 +17,7 @@ transactionRoutes.post("/", transactionController.createTransaction);
 transactionRoutes.put("/:id", transactionController.updateTransaction);
 
 // Delete operations - only ADMIN
-transactionRoutes.use("/*/delete", requireRole(["ADMIN"]));
+transactionRoutes.use("/*/delete", requireRole(["ADMIN", "SUPER_ADMIN"]));
 transactionRoutes.delete("/:id", transactionController.deleteTransaction);
 
 export default transactionRoutes; 
