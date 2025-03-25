@@ -1,27 +1,45 @@
 import { ILike, In } from "typeorm";
 import { AppDataSource } from "../database/data-source";
 import { Item } from "../models/Item";
+import { StoreService } from "./store-service";
+import type { z } from "zod";
+import type { createItemValidator, updateItemValidator } from "../validators/item-validator";
 
 export class ItemService {
   private itemRepository = AppDataSource.getRepository(Item);
+  private storeService: StoreService;
 
-  async createItem(itemData: Partial<Item>) {
+  constructor() {
+    this.storeService = new StoreService();
+  }
+
+  async createItem(itemData: z.infer<typeof createItemValidator>) {
     if (itemData.code) {
       const existingItem = await this.itemRepository.findOne({
-        where: { code: itemData.code },
+        where: { 
+          code: itemData.code,
+          store: { id: itemData.store_id }
+        },
       });
 
       if (existingItem) {
-        throw new Error("Item code already exists");
+        throw new Error("Item code already exists in this store");
       }
     }
 
-    // Set default values for total quantity and status
-    itemData.total_quantity = 0;
-    itemData.status = "ACTIVE";
-    itemData.selling_price = itemData.selling_price || 0; // Add default selling price if not provided
+    // Verify store exists
+    const store = await this.storeService.getStoreById(itemData.store_id);
 
-    const item = this.itemRepository.create(itemData);
+    const newItemData = {
+      ...itemData,
+      store: store,
+      total_quantity: 0,
+      status: "ACTIVE",
+      selling_price: itemData.selling_price || 0
+    }
+
+    // @ts-ignore
+    const item = this.itemRepository.create(newItemData);
     return this.itemRepository.save(item);
   }
 
@@ -34,6 +52,7 @@ export class ItemService {
       sortOrder = "DESC",
       categoryIds,
       unitId,
+      store_id
     } = query;
 
     let whereClause: any = {};
@@ -47,15 +66,36 @@ export class ItemService {
 
     if (categoryIds && categoryIds !== "" && categoryIds.length > 0 && categoryIds[0] !== "") {
       const categoryIdsArray = categoryIds[0].split(",");
-      whereClause.category = {
-        id: In(categoryIdsArray),
-      };
+      if (Array.isArray(whereClause)) {
+        whereClause = whereClause.map(condition => ({
+          ...condition,
+          category: { id: In(categoryIdsArray) }
+        }));
+      } else {
+        whereClause.category = { id: In(categoryIdsArray) };
+      }
     }
 
     if (unitId) {
-      whereClause.unit = {
-        id: unitId,
-      };
+      if (Array.isArray(whereClause)) {
+        whereClause = whereClause.map(condition => ({
+          ...condition,
+          unit: { id: unitId }
+        }));
+      } else {
+        whereClause.unit = { id: unitId };
+      }
+    }
+
+    if (store_id) {
+      if (Array.isArray(whereClause)) {
+        whereClause = whereClause.map(condition => ({
+          ...condition,
+          store: { id: store_id }
+        }));
+      } else {
+        whereClause.store = { id: store_id };
+      }
     }
 
     const [items, total] = await this.itemRepository.findAndCount({
@@ -68,6 +108,7 @@ export class ItemService {
       relations: {
         category: true,
         unit: true,
+        store: true,
         item_stocks: true,
       },
       select: {
@@ -87,6 +128,10 @@ export class ItemService {
         unit: {
           id: true,
           name: true,
+        },
+        store: {
+          id: true,
+          name: true
         },
         item_stocks: {
           id: true,
@@ -111,7 +156,12 @@ export class ItemService {
   async getItemById(id: number) {
     const item = await this.itemRepository.findOne({
       where: { id },
-      relations: ["category", "unit", "item_stocks"],
+      relations: {
+        category: true,
+        unit: true,
+        store: true,
+        item_stocks: true
+      }
     });
 
     if (!item) {
@@ -121,16 +171,37 @@ export class ItemService {
     return item;
   }
 
-  async updateItem(id: number, itemData: Partial<Item>) {
-    const existingItem = await this.itemRepository.findOne({
-      where: { id },
-    });
+  async updateItem(id: number, itemData: z.infer<typeof updateItemValidator>) {
+    const existingItem = await this.getItemById(id);
 
-    if (!existingItem) {
-      throw new Error("Item not found");
+    if (itemData.code) {
+      const duplicateItem = await this.itemRepository.findOne({
+        where: { 
+          code: itemData.code,
+          store: { 
+            id: itemData.store_id || existingItem.store.id 
+          }
+        }
+      });
+
+      if (duplicateItem && duplicateItem.id !== id) {
+        throw new Error("Item code already exists in this store");
+      }
     }
 
-    await this.itemRepository.update(id, itemData);
+    const updatedItemData = {
+      category: itemData.category,
+      unit: itemData.unit,
+      code: itemData.code,
+      name: itemData.name,
+      image: itemData.image,
+      status: itemData.status,
+      selling_price: itemData.selling_price,
+      store: itemData.store_id ? await this.storeService.getStoreById(itemData.store_id) : existingItem.store,
+    }
+
+    // @ts-ignore
+    await this.itemRepository.update(id, updatedItemData);
     return this.getItemById(id);
   }
 

@@ -15,6 +15,7 @@ import { Discount } from "./Discount";
 import { PaymentMethod } from "./PaymentMethod";
 import { TransactionItem } from "./TransactionItem";
 import { TermPayment } from "./TermPayment";
+import { Store } from "./Store";
 
 @Entity("transactions")
 export class Transaction {
@@ -84,4 +85,8 @@ export class Transaction {
 
   @OneToMany(() => TermPayment, (termPayment) => termPayment.transaction)
   term_payments?: TermPayment[];
+
+  @ManyToOne(() => Store, (store) => store.transactions)
+  @JoinColumn({ name: "store_id" })
+  store!: Relation<Store>;
 }

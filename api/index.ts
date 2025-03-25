@@ -18,6 +18,7 @@ import termPaymentRoutes from "./routes/term-payment-route";
 import imageRoutes from "./routes/image-route";
 import syncRoutes from "./routes/sync-routes";
 import dashboardRoutes from "./routes/dashboard-routes";
+import storeRoutes from "./routes/store-routes";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -45,6 +46,7 @@ app
   .route("/images", imageRoutes)
   .route("/sync", syncRoutes)
   .route("/dashboard", dashboardRoutes)
+  .route("/stores", storeRoutes)
   .onError(errorMiddleware);
 
 export default app;

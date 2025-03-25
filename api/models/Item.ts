@@ -13,6 +13,7 @@ import {
 import { Category } from "./Category";
 import { Unit } from "./Unit";
 import { ItemStock } from "./ItemStock";
+import { Store } from "./Store";
 
 @Entity("items")
 export class Item {
@@ -57,5 +58,7 @@ export class Item {
   @OneToMany(() => ItemStock, (itemStock) => itemStock.item)
   item_stocks!: ItemStock[];
 
-  
+  @ManyToOne(() => Store, (store) => store.items)
+  @JoinColumn({ name: "store_id" })
+  store!: Relation<Store>;
 }

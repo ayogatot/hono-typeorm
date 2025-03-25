@@ -4,7 +4,8 @@ export const registerValidator = z.object({
     name: z.string().min(3).max(50).nonempty(),
     email: z.string().email().nonempty(),
     password: z.string().min(6).max(100).nonempty(),
-    role: z.enum(["SUPER_ADMIN", "ADMIN", "CASHIER", "USER"]).default("USER")
+    role: z.enum(["SUPER_ADMIN", "ADMIN", "CASHIER", "USER"]).default("USER"),
+    store_id: z.number()
 })
 
 export const loginValidator = z.object({

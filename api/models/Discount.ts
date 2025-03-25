@@ -6,8 +6,12 @@ import {
   OneToMany,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
+  type Relation,
 } from "typeorm";
 import { Transaction } from "./Transaction";
+import { Store } from "./Store";
 
 @Entity("discounts")
 export class Discount {
@@ -40,4 +44,8 @@ export class Discount {
 
   @OneToMany(() => Transaction, (transaction) => transaction.discount)
   transactions!: Transaction[];
+
+  @ManyToOne(() => Store, (store) => store.discounts)
+  @JoinColumn({ name: "store_id" })
+  store!: Relation<Store>;
 }

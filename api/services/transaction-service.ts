@@ -4,12 +4,16 @@ import { Transaction } from "../models/Transaction";
 import { TransactionItem } from "../models/TransactionItem";
 import { ItemStock } from "../models/ItemStock";
 import { Item } from "../models/Item";
+import { Store } from "../models/Store";
+import { PaymentMethod } from "../models/PaymentMethod";
 
 export class TransactionService {
   private transactionRepository = AppDataSource.getRepository(Transaction);
   private transactionItemRepository = AppDataSource.getRepository(TransactionItem);
   private itemStockRepository = AppDataSource.getRepository(ItemStock);
   private itemRepository = AppDataSource.getRepository(Item);
+  private storeRepository = AppDataSource.getRepository(Store);
+  private paymentMethodRepository = AppDataSource.getRepository(PaymentMethod);
 
   async createTransaction(transactionData: any, userId: number) {
     const queryRunner = AppDataSource.createQueryRunner();
@@ -40,6 +44,17 @@ export class TransactionService {
       if (transactionData.term_deadline) {
         transactionData.term_deadline = new Date(transactionData.term_deadline);
       }
+
+      const store = await this.storeRepository.findOne({
+        where: { id: transactionData.store_id }
+      });
+
+      if (!store) {
+        throw new Error("Store not found");
+      }
+
+      transactionData.store = store;
+      delete transactionData.store_id;
 
       // Create the transaction first
       const transaction = this.transactionRepository.create({
@@ -138,23 +153,33 @@ export class TransactionService {
       sortOrder = "DESC",
       status,
       paymentMethodIds,
+      store_id
     } = query;
 
     let whereClause: any = {};
 
+    // Base conditions that apply to all queries
+    const baseConditions: any = {};
+
     if (status) {
-      whereClause.status = status;
+      baseConditions.status = status;
     }
 
     if (paymentMethodIds && paymentMethodIds !== "" && paymentMethodIds.length > 0 && paymentMethodIds[0] !== "") {
       const paymentMethodIdsArray = paymentMethodIds[0].split(",");
-      whereClause.payment_method = In(paymentMethodIdsArray);
+      baseConditions.payment_method = In(paymentMethodIdsArray);
+    }
+
+    if (store_id) {
+      baseConditions.store = { id: store_id };
     }
 
     if (search) {
+      // Combine search conditions with base conditions
       whereClause = [
-        { name: ILike(`%${search}%`) },
+        { ...baseConditions, name: ILike(`%${search}%`) },
         {
+          ...baseConditions,
           transaction_items: {
             item_stock: {
               item: [
@@ -165,6 +190,9 @@ export class TransactionService {
           },
         },
       ];
+    } else {
+      // If no search, just use base conditions
+      whereClause = baseConditions;
     }
 
     const [transactions, total] = await this.transactionRepository.findAndCount({
@@ -185,6 +213,7 @@ export class TransactionService {
           },
         },
         term_payments: true,
+        store: true,
       },
     });
 
@@ -202,6 +231,28 @@ export class TransactionService {
   async getTransactionById(id: number) {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
+      select: {
+        cashier: {
+          id: true,
+          name: true,
+        },
+        buyer: {
+          id: true,
+          name: true,
+        },
+        payment_method: {
+          id: true,
+          name: true,
+        },
+        discount: {
+          id: true,
+          name: true,
+        },
+        store: {
+          id: true,
+          name: true,
+        },
+      },
       relations: {
         cashier: true,
         buyer: true,
@@ -213,6 +264,7 @@ export class TransactionService {
           },
         },
         term_payments: true,
+        store: true,
       },
     });
 
@@ -223,15 +275,88 @@ export class TransactionService {
     return transaction;
   }
 
-  async updateTransaction(id: number, transactionData: Partial<Transaction>) {
-    const transaction = await this.getTransactionById(id);
+  async updateTransaction(id: number, transactionData: any) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (!transaction) {
-      throw new Error("Transaction not found");
+    try {
+      // Get existing transaction with all relations
+      const existingTransaction = await this.transactionRepository.findOne({
+        where: { id },
+        relations: {
+          cashier: true,
+          buyer: true,
+          discount: true,
+          payment_method: true,
+          transaction_items: {
+            item_stock: {
+              item: true,
+            },
+          },
+          term_payments: true,
+          store: true,
+        }
+      });
+
+      if (!existingTransaction) {
+        throw new Error("Transaction not found");
+      }
+
+      // If updating status to PAID, we need to check if it's a term payment transaction
+      if (transactionData.status === "PAID" && existingTransaction.term_count) {
+        // Check if all term payments are completed
+        const totalTermPayments = existingTransaction.term_payments?.reduce((acc, payment) => acc + payment.amount, 0);
+        if (totalTermPayments !== existingTransaction.total) {
+          throw new Error("Cannot mark transaction as PAID. There are unpaid term payments.");
+        }
+      }
+
+      // If updating store, verify the new store exists
+      if (transactionData.store_id) {
+        const store = await this.storeRepository.findOne({
+          where: { id: transactionData.store_id }
+        });
+        if (!store) {
+          throw new Error("Store not found");
+        }
+        transactionData.store = store;
+        delete transactionData.store_id;
+      }
+
+      // If updating payment method, verify it exists
+      if (transactionData.payment_method_id) {
+        const paymentMethod = await this.paymentMethodRepository.findOne({
+          where: { id: transactionData.payment_method_id }
+        });
+        if (!paymentMethod) {
+          throw new Error("Payment method not found");
+        }
+        transactionData.payment_method = paymentMethod;
+        delete transactionData.payment_method_id;
+      }
+
+      // Update the transaction
+      await queryRunner.manager.save(Transaction, {
+        ...existingTransaction,
+        ...transactionData
+      });
+
+      // Commit the transaction
+      await queryRunner.commitTransaction();
+
+      // Return updated transaction
+      return this.getTransactionById(id);
+
+    } catch (error) {
+      // Rollback in case of error
+      await queryRunner.rollbackTransaction();
+      throw error;
+
+    } finally {
+      // Release the query runner
+      await queryRunner.release();
     }
-
-    await this.transactionRepository.update(id, transactionData);
-    return this.getTransactionById(id);
   }
 
   async deleteTransaction(id: number) {

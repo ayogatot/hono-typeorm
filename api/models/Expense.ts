@@ -10,6 +10,7 @@ import {
   ManyToOne,
 } from "typeorm";
 import { User } from "./User";
+import { Store } from "./Store";
 
 @Entity("expenses")
 export class Expense {
@@ -34,4 +35,8 @@ export class Expense {
 
   @DeleteDateColumn({ type: "timestamp" })
   deleted_at!: Date;
+
+  @ManyToOne(() => Store, (store) => store.expenses)
+  @JoinColumn({ name: "store_id" })
+  store!: Relation<Store>;
 }

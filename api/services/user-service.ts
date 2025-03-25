@@ -8,12 +8,15 @@ import {
 import { z } from "zod";
 import { JWT } from "../utils/jwt";
 import { ILike } from "typeorm";
+import { StoreService } from "./store-service";
 
 export class UserService {
   private readonly userRepository: Repository<User>;
+  private readonly storeService: StoreService;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.storeService = new StoreService();
   }
 
   async register(request: z.infer<typeof registerValidator>): Promise<User> {
@@ -33,6 +36,7 @@ export class UserService {
     user.email = request.email;
     user.password = hashedPassword;
     user.role = request.role;
+    user.store = await this.storeService.getStoreById(request.store_id);
 
     return this.userRepository.save(user);
   }
@@ -161,7 +165,14 @@ export class UserService {
         name: true,
         email: true,
         role: true,
+        store: {
+          id: true,
+          name: true,
+        },
         created_at: true,
+      },
+      relations: {
+        store: true,
       },
     });
 
@@ -178,7 +189,7 @@ export class UserService {
 
   async adminUpdatePassword(userId: number, newPassword: string) {
     const user = await this.userRepository.findOne({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user) {
