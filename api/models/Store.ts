@@ -12,7 +12,7 @@ import { Transaction } from "./Transaction";
 import { Expense } from "./Expense";
 import { User } from "./User";
 import { Discount } from "./Discount";
-
+import { CafeTransactions } from "./CafeTransactions";
   @Entity("Stores")
   export class Store {
     @PrimaryGeneratedColumn()
@@ -41,6 +41,9 @@ import { Discount } from "./Discount";
 
     @OneToMany(() => Transaction, (transaction) => transaction.store)
     transactions!: Transaction[];
+
+    @OneToMany(() => CafeTransactions, (cafeTransaction) => cafeTransaction.store)
+    cafe_transactions!: CafeTransactions[];
 
     @OneToMany(() => Expense, (expense) => expense.store)
     expenses!: Expense[];
