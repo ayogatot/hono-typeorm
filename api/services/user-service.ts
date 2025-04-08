@@ -46,6 +46,9 @@ export class UserService {
   ): Promise<{ user: User; token: string }> {
     const user = await this.userRepository.findOne({
       where: { email: request.email },
+      relations: {
+        store: true,
+      },
     });
 
     if (!user) {
@@ -64,6 +67,8 @@ export class UserService {
       id: user.id,
       email: user.email,
       role: user.role,
+      store_id: user.store?.id || null,
+      store: user.store,
     });
 
     return { user, token };
