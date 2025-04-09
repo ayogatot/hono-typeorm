@@ -11,18 +11,12 @@ import {
   DeleteDateColumn,
 } from "typeorm";
 import { User } from "./User";
-import { TransactionItem } from "./TransactionItem";
-import { CafeMenu } from "./CafeMenu";
 import { CafeRecipes } from "./CafeRecipes";
 
-@Entity("cafe_item_stocks")
-export class CafeItemStock {
+@Entity("cafe_recipe_stocks")
+export class CafeRecipeStock {
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @ManyToOne(() => CafeMenu, (cafeMenu) => cafeMenu.item_stocks)
-  @JoinColumn({ name: "cafe_menu_id" })
-  cafe_menu!: Relation<CafeMenu>;
 
   @ManyToOne(() => User, (user) => user.item_stocks)
   @JoinColumn({ name: "added_by_id" })
@@ -47,14 +41,8 @@ export class CafeItemStock {
   updated_at!: Date;
 
   @OneToMany(
-    () => TransactionItem,
-    (transactionItem) => transactionItem.item_stock
-  )
-  transaction_items!: TransactionItem[];
-
-  @OneToMany(
     () => CafeRecipes,
-    (cafeRecipes) => cafeRecipes.cafe_item_stock
+    (cafeRecipes) => cafeRecipes.cafe_recipe_stock
   )
   cafe_recipes!: CafeRecipes[];
 

@@ -15,7 +15,7 @@ import { TermPayment } from "../models/TermPayment";
 import { Store } from "../models/Store";
 import { CafeTransactionsItems } from "../models/CafeTransactionsItems";
 import { CafeTransactions } from "../models/CafeTransactions";
-import { CafeItemStock } from "../models/CafeItemStock";
+import { CafeRecipeStock } from "../models/CafeRecipeStock";
 import { CafeMenu } from "../models/CafeMenu";
 import { CafeRecipes } from "../models/CafeRecipes";
 
@@ -44,8 +44,8 @@ const AppDataSource = new DataSource({
     User,
     TermPayment,
     CafeMenu,
-    CafeItemStock,
     CafeRecipes,
+    CafeRecipeStock,
     CafeTransactions,
     CafeTransactionsItems
   ],

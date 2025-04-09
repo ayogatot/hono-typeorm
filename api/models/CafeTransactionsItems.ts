@@ -10,7 +10,7 @@ import {
   DeleteDateColumn,
 } from "typeorm";
 import { CafeTransactions } from "./CafeTransactions";
-import { CafeItemStock } from "./CafeItemStock";
+import { CafeMenu } from "./CafeMenu";
 
 @Entity("cafe_transactions_items")
 export class CafeTransactionsItems {
@@ -24,9 +24,9 @@ export class CafeTransactionsItems {
   @JoinColumn({ name: "cafe_transaction_id" })
   cafe_transaction!: Relation<CafeTransactions>;
 
-  @ManyToOne(() => CafeItemStock, (cafeItemStock) => cafeItemStock.cafe_recipes)
-  @JoinColumn({ name: "cafe_item_stock_id" })
-  cafe_item_stock!: Relation<CafeItemStock>;
+  @ManyToOne(() => CafeMenu, (cafeMenu) => cafeMenu.cafe_recipes)
+  @JoinColumn({ name: "cafe_menu_id" })
+  cafe_menu!: Relation<CafeMenu>;
 
   @Column({ type: "int" })
   quantity!: number;
