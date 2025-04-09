@@ -10,7 +10,6 @@ import {
     DeleteDateColumn,
     UpdateDateColumn,
   } from "typeorm";
-  import { Unit } from "./Unit";
   import { CafeItemStock } from "./CafeItemStock";
   import { Store } from "./Store";
 import { CafeRecipes } from "./CafeRecipes";
@@ -29,7 +28,7 @@ import { CafeRecipes } from "./CafeRecipes";
     @Column({ type: "double" })
     selling_price!: number;
   
-    @Column({ type: "enum", enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" })
+    @Column({ type: "enum", enum: ["AVAILABLE", "OUT_OF_STOCK"], default: "AVAILABLE" })
     status!: string;
 
     @Column({ type: "enum", enum: ["DRINK", "FOOD"], default: "DRINK" })

@@ -13,6 +13,12 @@ import { User } from "../models/User";
 import { Unit } from "../models/Unit";
 import { TermPayment } from "../models/TermPayment";
 import { Store } from "../models/Store";
+import { CafeTransactionsItems } from "../models/CafeTransactionsItems";
+import { CafeTransactions } from "../models/CafeTransactions";
+import { CafeItemStock } from "../models/CafeItemStock";
+import { CafeMenu } from "../models/CafeMenu";
+import { CafeRecipes } from "../models/CafeRecipes";
+
 dotenv.config();
 
 const AppDataSource = new DataSource({
@@ -37,6 +43,11 @@ const AppDataSource = new DataSource({
     Unit,
     User,
     TermPayment,
+    CafeMenu,
+    CafeItemStock,
+    CafeRecipes,
+    CafeTransactions,
+    CafeTransactionsItems
   ],
   poolSize: 10,
   extra: {

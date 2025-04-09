@@ -19,6 +19,7 @@ import imageRoutes from "./routes/image-route";
 import syncRoutes from "./routes/sync-routes";
 import dashboardRoutes from "./routes/dashboard-routes";
 import storeRoutes from "./routes/store-routes";
+import cafeMenuRoutes from "./routes/cafe-menu-route";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -47,6 +48,7 @@ app
   .route("/sync", syncRoutes)
   .route("/dashboard", dashboardRoutes)
   .route("/stores", storeRoutes)
+  .route("/cafe-menus", cafeMenuRoutes)
   .onError(errorMiddleware);
 
 export default app;
