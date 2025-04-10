@@ -15,9 +15,10 @@ import { TermPayment } from "../models/TermPayment";
 import { Store } from "../models/Store";
 import { CafeTransactionsItems } from "../models/CafeTransactionsItems";
 import { CafeTransactions } from "../models/CafeTransactions";
-import { CafeRecipeStock } from "../models/CafeRecipeStock";
+import { CafeItemStock } from "../models/CafeItemStock";
 import { CafeMenu } from "../models/CafeMenu";
-import { CafeRecipes } from "../models/CafeRecipes";
+import { CafeItem } from "../models/CafeItem";
+import { CafeRecipe } from "../models/CafeRecipe";
 
 dotenv.config();
 
@@ -44,8 +45,9 @@ const AppDataSource = new DataSource({
     User,
     TermPayment,
     CafeMenu,
-    CafeRecipes,
-    CafeRecipeStock,
+    CafeItem,
+    CafeRecipe,
+    CafeItemStock,
     CafeTransactions,
     CafeTransactionsItems
   ],

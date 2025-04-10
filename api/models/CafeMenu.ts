@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Store } from "./Store";
-import { CafeRecipes } from "./CafeRecipes";
+import { CafeRecipe } from "./CafeRecipe";
 
 @Entity("cafe_menus")
 export class CafeMenu {
@@ -50,6 +50,6 @@ export class CafeMenu {
   @JoinColumn({ name: "store_id" })
   store!: Relation<Store>;
 
-  @OneToMany(() => CafeRecipes, (cafeRecipes) => cafeRecipes.cafe_menu)
-  cafe_recipes!: CafeRecipes[];
+  @OneToMany(() => CafeRecipe, (cafeRecipe) => cafeRecipe.cafe_menu)
+  cafe_recipes!: CafeRecipe[];
 }

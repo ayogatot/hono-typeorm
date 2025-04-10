@@ -1,6 +1,8 @@
 import { AppDataSource } from "../database/data-source";
 import { CafeMenu } from "../models/CafeMenu";
-import { StoreService } from "./store-service";
+import { CafeRecipe } from "../models/CafeRecipe";
+import { Store } from "../models/Store";
+import { CafeItem } from "../models/CafeItem";
 import type { z } from "zod";
 import type { createCafeMenuValidator, updateCafeMenuValidator } from "../validators/cafe-menu-validator";
 import { 
@@ -13,26 +15,53 @@ import {
 
 export class CafeMenuService {
   private cafeMenuRepository = AppDataSource.getRepository(CafeMenu);
-  private storeService: StoreService;
+  private storeRepository = AppDataSource.getRepository(Store);
+  private cafeItemRepository = AppDataSource.getRepository(CafeItem);
 
-  constructor() {
-    this.storeService = new StoreService();
-  }
 
   async createCafeMenu(cafeMenuData: z.infer<typeof createCafeMenuValidator>) {
-    // Verify store exists
-    const store = await this.storeService.getStoreById(cafeMenuData.store_id);
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const newCafeMenuData = {
-      ...cafeMenuData,
-      store: store,
-      status: cafeMenuData.status || "AVAILABLE",
-      type: cafeMenuData.type || "DRINK"
+    try {
+      // Verify store exists
+      const store = await this.storeRepository.findOne({ where: { id: cafeMenuData.store_id } });
+
+      // Create cafe menu
+      const newCafeMenuData = {
+        ...cafeMenuData,
+        store: store,
+        status: cafeMenuData.status || "AVAILABLE",
+        type: cafeMenuData.type || "DRINK"
+      }
+
+      // @ts-ignore
+      const cafeMenu = queryRunner.manager.create(CafeMenu, newCafeMenuData);
+      await queryRunner.manager.save(cafeMenu);
+
+      // Create recipes
+      for (const recipe of cafeMenuData.recipes) {
+        const cafeItem = await this.cafeItemRepository.findOne({ where: { id: recipe.cafe_item_id } });
+        
+        // @ts-ignore
+        const newRecipe = queryRunner.manager.create(CafeRecipe, {
+          cafe_menu: cafeMenu,  
+          cafe_item: cafeItem,
+          used_quantity: recipe.used_quantity
+        });
+        
+        await queryRunner.manager.save(newRecipe);
+      }
+
+      await queryRunner.commitTransaction();
+      return this.getCafeMenuById(cafeMenu.id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    // @ts-ignore
-    const cafeMenu = this.cafeMenuRepository.create(newCafeMenuData);
-    return this.cafeMenuRepository.save(cafeMenu);
   }
 
   async getAllCafeMenus(query: any) {
@@ -66,8 +95,11 @@ export class CafeMenuService {
       take: limit,
       relations: {
         store: true,
-        item_stocks: true,
-        cafe_recipes: true
+        cafe_recipes: {
+          cafe_item: {
+            unit: true
+          },
+        },
       },
       select: {
         id: true,
@@ -82,16 +114,15 @@ export class CafeMenuService {
           id: true,
           name: true
         },
-        item_stocks: {
-          id: true,
-          quantity: true
-        },
         cafe_recipes: {
           id: true,
-          total_quantity: true,
-          unit: {
+          used_quantity: true,
+          cafe_item: {
             id: true,
-            name: true
+            name: true,
+            unit: {
+              name: true
+            }
           }
         }
       },
@@ -108,7 +139,6 @@ export class CafeMenuService {
       where: { id },
       relations: {
         store: true,
-        item_stocks: true,
         cafe_recipes: true
       }
     });
@@ -121,20 +151,76 @@ export class CafeMenuService {
   }
 
   async updateCafeMenu(id: number, cafeMenuData: z.infer<typeof updateCafeMenuValidator>) {
-    const existingCafeMenu = await this.getCafeMenuById(id);
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const updatedCafeMenuData = {
-      name: cafeMenuData.name,
-      image: cafeMenuData.image,
-      status: cafeMenuData.status,
-      type: cafeMenuData.type,
-      selling_price: cafeMenuData.selling_price,
-      store: cafeMenuData.store_id ? await this.storeService.getStoreById(cafeMenuData.store_id) : existingCafeMenu.store,
+    try {
+      const existingCafeMenu = await queryRunner.manager.findOne(CafeMenu, {
+        where: { id },
+        relations: {
+          store: true,
+          cafe_recipes: true
+        }
+      });
+
+      if (!existingCafeMenu) {
+        throw new Error("Cafe menu not found");
+      }
+
+      // Update cafe menu data
+      const updatedCafeMenuData: Partial<CafeMenu> = {
+        name: cafeMenuData.name,
+        image: cafeMenuData.image,
+        status: cafeMenuData.status,
+        type: cafeMenuData.type,
+        selling_price: cafeMenuData.selling_price,
+      }
+
+      // Handle store update if provided
+      if (cafeMenuData.store_id) {
+        const store = await this.storeRepository.findOne({ where: { id: cafeMenuData.store_id } });
+        if (!store) {
+          throw new Error("Store not found");
+        }
+        updatedCafeMenuData.store = store;
+      }
+
+      await queryRunner.manager.update(CafeMenu, id, updatedCafeMenuData);
+
+      // Handle recipe updates if provided
+      if (cafeMenuData.recipes) {
+        // Delete existing recipes
+        await queryRunner.manager.delete(CafeRecipe, { cafe_menu: { id } });
+
+        // Create new recipes
+        for (const recipe of cafeMenuData.recipes) {
+          const cafeItem = await this.cafeItemRepository.findOne({ 
+            where: { id: recipe.cafe_item_id } 
+          });
+          
+          if (!cafeItem) {
+            throw new Error(`Cafe item with id ${recipe.cafe_item_id} not found`);
+          }
+
+          const newRecipe = queryRunner.manager.create(CafeRecipe, {
+            cafe_menu: existingCafeMenu,
+            cafe_item: cafeItem,
+            used_quantity: recipe.used_quantity
+          });
+          
+          await queryRunner.manager.save(newRecipe);
+        }
+      }
+
+      await queryRunner.commitTransaction();
+      return this.getCafeMenuById(id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    // @ts-ignore
-    await this.cafeMenuRepository.update(id, updatedCafeMenuData);
-    return this.getCafeMenuById(id);
   }
 
   async deleteCafeMenu(id: number) {

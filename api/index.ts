@@ -20,7 +20,8 @@ import syncRoutes from "./routes/sync-routes";
 import dashboardRoutes from "./routes/dashboard-routes";
 import storeRoutes from "./routes/store-routes";
 import cafeMenuRoutes from "./routes/cafe-menu-route";
-
+import cafeItemRoutes from "./routes/cafe-item-route";
+import cafeItemStockRoutes from "./routes/cafe-item-stock-route";
 try {
   const { isInitialized } = await AppDataSource.initialize();
   console.log("Database initialize status:", isInitialized);
@@ -49,6 +50,8 @@ app
   .route("/dashboard", dashboardRoutes)
   .route("/stores", storeRoutes)
   .route("/cafe-menus", cafeMenuRoutes)
+  .route("/cafe-items", cafeItemRoutes)
+  .route("/cafe-item-stocks", cafeItemStockRoutes)
   .onError(errorMiddleware);
 
 export default app;

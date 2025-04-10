@@ -8,27 +8,24 @@ import {
     type Relation,
     UpdateDateColumn,
     DeleteDateColumn,
+    OneToMany,
   } from "typeorm";
-  import { CafeMenu } from "./CafeMenu";
-  import { CafeRecipeStock } from "./CafeRecipeStock";
+  import { CafeRecipe } from "./CafeRecipe";
+  import { CafeItemStock } from "./CafeItemStock";
   import { Unit } from "./Unit";
 
-  @Entity("cafe_recipes")
-  export class CafeRecipes {
+  @Entity("cafe_items")
+  export class CafeItem {
     @PrimaryGeneratedColumn()
     id!: number;
   
-    @ManyToOne(() => CafeMenu, (cafeMenu) => cafeMenu.cafe_recipes)
-    @JoinColumn({ name: "cafe_menu_id" })
-    cafe_menu!: Relation<CafeMenu>;
+    @ManyToOne(() => CafeRecipe, (cafeRecipe) => cafeRecipe.cafe_item)
+    @JoinColumn({ name: "cafe_recipe_id" })
+    cafe_recipe!: Relation<CafeRecipe>;
 
     @ManyToOne(() => Unit, (unit) => unit.items)
     @JoinColumn({ name: "unit_id" })
     unit!: Relation<Unit>;
-
-    @ManyToOne(() => CafeRecipeStock, (cafeRecipeStock) => cafeRecipeStock.cafe_recipes)
-    @JoinColumn({ name: "cafe_recipe_stock_id" })
-    cafe_recipe_stock!: Relation<CafeRecipeStock>;
 
     @Column({ type: "varchar", nullable: true, unique: true })
     code!: string;
@@ -36,7 +33,7 @@ import {
     @Column({ type: "varchar" })
     name!: string;
 
-    @Column({ type: "int" })
+    @Column({ type: "int", nullable: true })
     total_quantity!: number;
   
     @CreateDateColumn({ type: "timestamp" })
@@ -47,5 +44,8 @@ import {
   
     @DeleteDateColumn({ type: "timestamp" })
     deleted_at!: Date;
+    
+    @OneToMany(() => CafeItemStock, (cafeItemStock) => cafeItemStock.cafe_items)
+    cafe_item_stocks!: CafeItemStock[];
   }
   
