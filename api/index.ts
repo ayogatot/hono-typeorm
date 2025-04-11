@@ -22,6 +22,8 @@ import storeRoutes from "./routes/store-routes";
 import cafeMenuRoutes from "./routes/cafe-menu-route";
 import cafeItemRoutes from "./routes/cafe-item-route";
 import cafeItemStockRoutes from "./routes/cafe-item-stock-route";
+import cafeTransactionRoutes from "./routes/cafe-transactions-route";
+
 try {
   const { isInitialized } = await AppDataSource.initialize();
   console.log("Database initialize status:", isInitialized);
@@ -52,6 +54,7 @@ app
   .route("/cafe-menus", cafeMenuRoutes)
   .route("/cafe-items", cafeItemRoutes)
   .route("/cafe-item-stocks", cafeItemStockRoutes)
+  .route("/cafe-transactions", cafeTransactionRoutes)
   .onError(errorMiddleware);
 
 export default app;

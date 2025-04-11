@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import { Store } from "./Store";
 import { CafeRecipe } from "./CafeRecipe";
+import { CafeTransactionsMenus } from "./CafeTransactionsMenu";
 
 @Entity("cafe_menus")
 export class CafeMenu {
@@ -52,4 +53,10 @@ export class CafeMenu {
 
   @OneToMany(() => CafeRecipe, (cafeRecipe) => cafeRecipe.cafe_menu)
   cafe_recipes!: CafeRecipe[];
+
+  @OneToMany(
+    () => CafeTransactionsMenus,
+    (cafeTransactionsMenus) => cafeTransactionsMenus.cafe_menu
+  )
+  cafe_transactions_menus!: CafeTransactionsMenus[];
 }

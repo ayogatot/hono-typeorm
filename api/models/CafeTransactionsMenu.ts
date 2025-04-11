@@ -12,19 +12,19 @@ import {
 import { CafeTransactions } from "./CafeTransactions";
 import { CafeMenu } from "./CafeMenu";
 
-@Entity("cafe_transactions_items")
-export class CafeTransactionsItems {
+@Entity("cafe_transactions_menus")
+export class CafeTransactionsMenus {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @ManyToOne(
     () => CafeTransactions,
-    (cafeTransaction) => cafeTransaction.cafe_transactions_items
+    (cafeTransaction) => cafeTransaction.cafe_transactions_menus
   )
   @JoinColumn({ name: "cafe_transaction_id" })
   cafe_transaction!: Relation<CafeTransactions>;
 
-  @ManyToOne(() => CafeMenu, (cafeMenu) => cafeMenu.cafe_recipes)
+  @ManyToOne(() => CafeMenu, (cafeMenu) => cafeMenu.cafe_transactions_menus)
   @JoinColumn({ name: "cafe_menu_id" })
   cafe_menu!: Relation<CafeMenu>;
 

@@ -15,7 +15,7 @@ import { Discount } from "./Discount";
 import { PaymentMethod } from "./PaymentMethod";
 import { TransactionItem } from "./TransactionItem";
 import { Store } from "./Store";
-import { CafeTransactionsItems } from "./CafeTransactionsItems";
+import { CafeTransactionsMenus } from "./CafeTransactionsMenu";
 
 @Entity("cafe_transactions")
 export class CafeTransactions {
@@ -78,10 +78,10 @@ export class CafeTransactions {
   deleted_at!: Date;
 
   @OneToMany(
-    () => CafeTransactionsItems,
-    (cafeTransactionsItems) => cafeTransactionsItems.cafe_transaction
+    () => CafeTransactionsMenus,
+    (cafeTransactionsMenus) => cafeTransactionsMenus.cafe_transaction
   )
-  cafe_transactions_items!: CafeTransactionsItems[];
+  cafe_transactions_menus!: CafeTransactionsMenus[];
 
   @ManyToOne(() => Store, (store) => store.cafe_transactions)
   @JoinColumn({ name: "store_id" })

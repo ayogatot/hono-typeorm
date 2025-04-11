@@ -13,7 +13,7 @@ import { User } from "../models/User";
 import { Unit } from "../models/Unit";
 import { TermPayment } from "../models/TermPayment";
 import { Store } from "../models/Store";
-import { CafeTransactionsItems } from "../models/CafeTransactionsItems";
+import { CafeTransactionsMenus } from "../models/CafeTransactionsMenu";
 import { CafeTransactions } from "../models/CafeTransactions";
 import { CafeItemStock } from "../models/CafeItemStock";
 import { CafeMenu } from "../models/CafeMenu";
@@ -49,7 +49,7 @@ const AppDataSource = new DataSource({
     CafeRecipe,
     CafeItemStock,
     CafeTransactions,
-    CafeTransactionsItems
+    CafeTransactionsMenus,
   ],
   poolSize: 10,
   extra: {
