@@ -26,6 +26,17 @@ import { CafeTransactions } from "./CafeTransactions";
 
     @Column({ type: "enum", enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" })
     status!: "ACTIVE" | "INACTIVE";
+
+    @Column({ type: "varchar", nullable: true })
+    address!: string;
+
+    @Column({ type: "varchar", nullable: true })
+    phone_number!: string;
+
+    @Column({ type: "varchar", nullable: true })
+    email!: string;
+
+
   
     @CreateDateColumn({ type: "timestamp" })
     created_at!: Date;

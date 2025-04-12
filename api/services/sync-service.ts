@@ -36,7 +36,10 @@ export class SyncService {
     await this.unitRepository.insert(units);
     await this.paymentMethodRepository.insert(paymentMethods);
     await this.storeRepository.insert({
-      name: "Toko Berkah Jaya"
+      name: "Toko Berkah Jaya",
+      address: "Jl. Raya No. 123",
+      phone_number: "081234567890",
+      email: "tokoberkahjaya@gmail.com"
     });
     await this.userRepository.insert(newUser);
 
