@@ -23,6 +23,7 @@ import cafeMenuRoutes from "./routes/cafe-menu-route";
 import cafeItemRoutes from "./routes/cafe-item-route";
 import cafeItemStockRoutes from "./routes/cafe-item-stock-route";
 import cafeTransactionRoutes from "./routes/cafe-transactions-route";
+import bankRoutes from "./routes/bank-route";
 
 try {
   const { isInitialized } = await AppDataSource.initialize();
@@ -55,6 +56,7 @@ app
   .route("/cafe-items", cafeItemRoutes)
   .route("/cafe-item-stocks", cafeItemStockRoutes)
   .route("/cafe-transactions", cafeTransactionRoutes)
+  .route("/banks", bankRoutes)
   .onError(errorMiddleware);
 
 export default app;

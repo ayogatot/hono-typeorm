@@ -19,7 +19,7 @@ import { CafeItemStock } from "../models/CafeItemStock";
 import { CafeMenu } from "../models/CafeMenu";
 import { CafeItem } from "../models/CafeItem";
 import { CafeRecipe } from "../models/CafeRecipe";
-
+import { Bank } from "../models/Bank";
 dotenv.config();
 
 const AppDataSource = new DataSource({
@@ -50,6 +50,7 @@ const AppDataSource = new DataSource({
     CafeItemStock,
     CafeTransactions,
     CafeTransactionsMenus,
+    Bank,
   ],
   poolSize: 10,
   extra: {
