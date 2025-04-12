@@ -19,6 +19,7 @@ import {
   addRelationFilter 
 } from "../utils/query-utils";
 import type { DeepPartial } from "typeorm";
+import generateInvoiceId from "../utils/generate-invoice";
 export class CafeTransactionsService {
   private cafeTransactionsRepository = AppDataSource.getRepository(CafeTransactions);
   private cafeTransactionsMenusRepository = AppDataSource.getRepository(CafeTransactionsMenus);
@@ -76,6 +77,8 @@ export class CafeTransactionsService {
       // Calculate total with discount
       const total = subtotal - (subtotal * (discountValue / 100));
 
+      const invoiceNumber = generateInvoiceId("CAFE-INV");
+
       // Create transaction
       const newTransactionData = {
         ...transactionData,
@@ -85,7 +88,8 @@ export class CafeTransactionsService {
         payment_method: paymentMethod,
         store,
         subtotal,
-        total
+        total,
+        invoice_number: invoiceNumber
       }
 
       const transaction = queryRunner.manager.create(CafeTransactions, newTransactionData as DeepPartial<CafeTransactions>);
@@ -163,7 +167,7 @@ export class CafeTransactionsService {
     let whereClause = {};
 
     // Add search condition
-    whereClause = addSearchCondition(whereClause, ["name", "phone_number"], search);
+    whereClause = addSearchCondition(whereClause, ["invoice_number", "name", "phone_number"], search);
 
     // Add filter conditions
     whereClause = addFilterCondition(whereClause, "status", status);

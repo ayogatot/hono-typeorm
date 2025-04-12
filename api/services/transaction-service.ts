@@ -6,14 +6,18 @@ import { ItemStock } from "../models/ItemStock";
 import { Item } from "../models/Item";
 import { Store } from "../models/Store";
 import { PaymentMethod } from "../models/PaymentMethod";
+import generateInvoiceId from "../utils/generate-invoice";
+import { Discount } from "../models/Discount";
 
 export class TransactionService {
   private transactionRepository = AppDataSource.getRepository(Transaction);
-  private transactionItemRepository = AppDataSource.getRepository(TransactionItem);
+  private transactionItemRepository =
+    AppDataSource.getRepository(TransactionItem);
   private itemStockRepository = AppDataSource.getRepository(ItemStock);
   private itemRepository = AppDataSource.getRepository(Item);
   private storeRepository = AppDataSource.getRepository(Store);
   private paymentMethodRepository = AppDataSource.getRepository(PaymentMethod);
+  private discountRepository = AppDataSource.getRepository(Discount);
 
   async createTransaction(transactionData: any, userId: number) {
     const queryRunner = AppDataSource.createQueryRunner();
@@ -46,7 +50,7 @@ export class TransactionService {
       }
 
       const store = await this.storeRepository.findOne({
-        where: { id: transactionData.store_id }
+        where: { id: transactionData.store_id },
       });
 
       if (!store) {
@@ -56,25 +60,33 @@ export class TransactionService {
       transactionData.store = store;
       delete transactionData.store_id;
 
+      const invoiceNumber = generateInvoiceId("BUILDING-INV");
+
+      // Apply discount if exists
+      let discountValue = 0;
+      if (transactionData.discount) {
+        const discount = await this.discountRepository.findOne({
+          where: { id: transactionData.discount },
+        });
+        if (discount) {
+          if (discount.discount_price) {
+            discountValue = discount.discount_price;
+          } else {
+            discountValue = (discount.discount_percentage * subtotal) / 100;
+          }
+        }
+      }
+      const total = subtotal - discountValue;
+
       // Create the transaction first
       const transaction = this.transactionRepository.create({
         ...transactionData,
         subtotal,
-        total: subtotal, // Will be updated if discount exists
+        total,
         cashier: userId,
         status: transactionData.term_count ? "NOT_PAID" : "PAID",
+        invoice_number: invoiceNumber,
       }); // get the first item because the .create behavior is returning an array
-
-      // Apply discount if exists
-      // if (transactionData.discount) {
-      //   const discountRepo = AppDataSource.getRepository("Discount");
-      //   const discount = await discountRepo.findOne({
-      //     where: { id: transactionData.discount }
-      //   });
-      //   if (discount) {
-      //     transaction.total = subtotal - discount.discount_price;
-      //   }
-      // }
 
       // Save transaction
       const savedTransaction = await queryRunner.manager.save(
@@ -133,8 +145,8 @@ export class TransactionService {
       return this.getTransactionById(
         savedTransaction.length > 0
           ? savedTransaction[0].id
-            // @ts-ignore
-          : savedTransaction.id
+          : // @ts-ignore
+            savedTransaction.id
       );
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -153,7 +165,7 @@ export class TransactionService {
       sortOrder = "DESC",
       status,
       paymentMethodIds,
-      store_id
+      store_id,
     } = query;
 
     let whereClause: any = {};
@@ -165,7 +177,12 @@ export class TransactionService {
       baseConditions.status = status;
     }
 
-    if (paymentMethodIds && paymentMethodIds !== "" && paymentMethodIds.length > 0 && paymentMethodIds[0] !== "") {
+    if (
+      paymentMethodIds &&
+      paymentMethodIds !== "" &&
+      paymentMethodIds.length > 0 &&
+      paymentMethodIds[0] !== ""
+    ) {
       const paymentMethodIdsArray = paymentMethodIds[0].split(",");
       baseConditions.payment_method = In(paymentMethodIdsArray);
     }
@@ -177,6 +194,7 @@ export class TransactionService {
     if (search) {
       // Combine search conditions with base conditions
       whereClause = [
+        { ...baseConditions, invoice_number: ILike(`%${search}%`) },
         { ...baseConditions, name: ILike(`%${search}%`) },
         {
           ...baseConditions,
@@ -195,27 +213,29 @@ export class TransactionService {
       whereClause = baseConditions;
     }
 
-    const [transactions, total] = await this.transactionRepository.findAndCount({
-      where: whereClause,
-      order: {
-        [sortBy]: sortOrder,
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: {
-        cashier: true,
-        buyer: true,
-        discount: true,
-        payment_method: true,
-        transaction_items: {
-          item_stock: {
-            item: true,
-          },
+    const [transactions, total] = await this.transactionRepository.findAndCount(
+      {
+        where: whereClause,
+        order: {
+          [sortBy]: sortOrder,
         },
-        term_payments: true,
-        store: true,
-      },
-    });
+        skip: (page - 1) * limit,
+        take: limit,
+        relations: {
+          cashier: true,
+          buyer: true,
+          discount: true,
+          payment_method: true,
+          transaction_items: {
+            item_stock: {
+              item: true,
+            },
+          },
+          term_payments: true,
+          store: true,
+        },
+      }
+    );
 
     return {
       data: transactions,
@@ -296,7 +316,7 @@ export class TransactionService {
           },
           term_payments: true,
           store: true,
-        }
+        },
       });
 
       if (!existingTransaction) {
@@ -306,16 +326,21 @@ export class TransactionService {
       // If updating status to PAID, we need to check if it's a term payment transaction
       if (transactionData.status === "PAID" && existingTransaction.term_count) {
         // Check if all term payments are completed
-        const totalTermPayments = existingTransaction.term_payments?.reduce((acc, payment) => acc + payment.amount, 0);
+        const totalTermPayments = existingTransaction.term_payments?.reduce(
+          (acc, payment) => acc + payment.amount,
+          0
+        );
         if (totalTermPayments !== existingTransaction.total) {
-          throw new Error("Cannot mark transaction as PAID. There are unpaid term payments.");
+          throw new Error(
+            "Cannot mark transaction as PAID. There are unpaid term payments."
+          );
         }
       }
 
       // If updating store, verify the new store exists
       if (transactionData.store_id) {
         const store = await this.storeRepository.findOne({
-          where: { id: transactionData.store_id }
+          where: { id: transactionData.store_id },
         });
         if (!store) {
           throw new Error("Store not found");
@@ -327,7 +352,7 @@ export class TransactionService {
       // If updating payment method, verify it exists
       if (transactionData.payment_method_id) {
         const paymentMethod = await this.paymentMethodRepository.findOne({
-          where: { id: transactionData.payment_method_id }
+          where: { id: transactionData.payment_method_id },
         });
         if (!paymentMethod) {
           throw new Error("Payment method not found");
@@ -339,7 +364,7 @@ export class TransactionService {
       // Update the transaction
       await queryRunner.manager.save(Transaction, {
         ...existingTransaction,
-        ...transactionData
+        ...transactionData,
       });
 
       // Commit the transaction
@@ -347,12 +372,10 @@ export class TransactionService {
 
       // Return updated transaction
       return this.getTransactionById(id);
-
     } catch (error) {
       // Rollback in case of error
       await queryRunner.rollbackTransaction();
       throw error;
-
     } finally {
       // Release the query runner
       await queryRunner.release();

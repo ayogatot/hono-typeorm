@@ -38,6 +38,9 @@ export class CafeTransactions {
   @JoinColumn({ name: "payment_method_id" })
   payment_method!: Relation<PaymentMethod>;
 
+  @Column({type: "varchar", nullable: false, unique: true})
+  invoice_number!: string;
+
   @Column({ type: "double" })
   total!: number;
 
